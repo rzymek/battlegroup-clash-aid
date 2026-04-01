@@ -25,9 +25,9 @@ export default defineConfig({
                 globPatterns: ["**/*"],
             },
             manifest: {
-                name: "$NAME",
-                short_name: "$NAME",
-                description: "$NAME",
+                name: "bcb",
+                short_name: "bcb",
+                description: "bcb",
                 theme_color: "#FFFFE0",
                 icons: [{
                     src: "pwa-64x64.png",

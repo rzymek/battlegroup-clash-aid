@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "deploy": "surge dist/ $NAME.surge.sh",
+    "deploy": "surge dist/ bcb.surge.sh",
     "dev": "vite --host",
     "preview": "vite preview",
     "build": "npm-run-all clean -p check:* bundle",
