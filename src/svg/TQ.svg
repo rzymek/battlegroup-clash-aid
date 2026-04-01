@@ -1,58 +1,9 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Created with Inkscape (http://www.inkscape.org/) -->
-
-<svg
-   width="20.199196mm"
-   height="20.199188mm"
-   viewBox="0 0 20.199196 20.199188"
-   version="1.1"
-   id="svg112985"
-   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
-   sodipodi:docname="res.svg"
-   xml:space="preserve"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:svg="http://www.w3.org/2000/svg"><sodipodi:namedview
-     id="namedview112987"
-     pagecolor="#ffffff"
-     bordercolor="#000000"
-     borderopacity="0.25"
-     inkscape:showpageshadow="2"
-     inkscape:pageopacity="0.0"
-     inkscape:pagecheckerboard="0"
-     inkscape:deskcolor="#d1d1d1"
-     inkscape:document-units="mm"
-     showgrid="false"
-     inkscape:zoom="1.4462979"
-     inkscape:cx="411.04949"
-     inkscape:cy="300.76792"
-     inkscape:window-width="2560"
-     inkscape:window-height="1006"
-     inkscape:window-x="0"
-     inkscape:window-y="0"
-     inkscape:window-maximized="1"
-     inkscape:current-layer="layer1" /><defs
-     id="defs112982" /><g
-     inkscape:label="Layer 1"
-     inkscape:groupmode="layer"
-     id="layer1"
-     transform="translate(-77.685594,-134.11253)"><g
-       id="g41890"
-       transform="matrix(4.1874453,0,0,4.1874453,-691.50978,-231.86638)"><circle
-         style="opacity:0.998269;fill:#000000;fill-opacity:1;stroke:#fefefe;stroke-width:0.264583;stroke-opacity:1"
-         id="circle"
-         cx="186.10272"
-         cy="89.810966"
-         r="2.2795837" /><text
-         xml:space="preserve"
-         style="font-style:normal;font-variant:normal;font-weight:600;font-stretch:normal;font-size:4.13168px;font-family:FreeSans;-inkscape-font-specification:'FreeSans Semi-Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;text-anchor:middle;opacity:0.998269;fill:none;fill-opacity:1;stroke:#fefefe;stroke-width:0.218634;stroke-opacity:1"
-         x="215.2285"
-         y="78.791039"
-         id="text41733"
-         transform="scale(0.86467506,1.1565038)"><tspan
-           sodipodi:role="line"
-           id="tspan41731"
-           style="font-style:normal;font-variant:normal;font-weight:600;font-stretch:normal;font-size:3.30535px;font-family:FreeSans;-inkscape-font-specification:'FreeSans Semi-Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#fcfefb;fill-opacity:1;stroke:none;stroke-width:0.218634"
-           x="215.2285"
-           y="78.791039">6</tspan></text></g></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="76.343" height="76.343" viewBox="0 0 20.199 20.199">
+    <g transform="translate(-769.195 -365.979)scale(4.18745)">
+        <circle cx="186.103" cy="89.811" r="2.28"
+                style="opacity:.998269;fill:#000;fill-opacity:1;stroke:#fefefe;stroke-width:.264583;stroke-opacity:1"/>
+        <text xml:space="preserve" x="215.228" y="78.791"
+              style="font-style:normal;font-variant:normal;font-weight:600;font-stretch:normal;font-size:4.13168px;font-family:FreeSans;-inkscape-font-specification:&quot;FreeSans Semi-Bold&quot;;font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;text-anchor:middle;opacity:.998269;fill:none;fill-opacity:1;stroke:#fefefe;stroke-width:.218634;stroke-opacity:1"
+              transform="scale(.86468 1.1565)"><tspan x="215.228" y="78.791" style="font-style:normal;font-variant:normal;font-weight:600;font-stretch:normal;font-size:3.30535px;font-family:FreeSans;-inkscape-font-specification:&quot;FreeSans Semi-Bold&quot;;font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#fcfefb;fill-opacity:1;stroke:none;stroke-width:.218634">6</tspan></text>
+    </g>
+</svg>
