@@ -8,6 +8,8 @@ export function SvgContent(props: {
 }) {
   const selector = props.e ?? 'tspan';
   return <SvgMut svg={props.svg}>{useCallback(svg => {
-    svg.querySelector(selector)!.textContent = String(props.children);
+    const e = svg.querySelector(selector);
+    if(!e) return;
+    e!.textContent = String(props.children);
   }, [props.children])}</SvgMut>
 }

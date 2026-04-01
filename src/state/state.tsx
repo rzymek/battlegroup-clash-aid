@@ -2,6 +2,11 @@ import {clone} from "remeda"
 import {update} from "./update.ts"
 
 const initialState = {
+    direct: {
+        attacker:{
+            TQ: undefined as number|undefined
+        }
+    }
 }
 
 export const state:typeof initialState = clone({
