@@ -15,10 +15,10 @@
         <clipPath id="e" clipPathUnits="userSpaceOnUse">
             <path d="M467.093 442.961h1.507v39.569h-1.507z"/>
         </clipPath>
-        <clipPath id="k" clipPathUnits="userSpaceOnUse">
+        <clipPath id="f" clipPathUnits="userSpaceOnUse">
             <path d="M448.063 463.498h39.568v-1.506h-39.568z"/>
         </clipPath>
-        <clipPath id="l" clipPathUnits="userSpaceOnUse">
+        <clipPath id="g" clipPathUnits="userSpaceOnUse">
             <path d="M448.063 461.992h39.569v1.507h-39.569z"/>
         </clipPath>
     </defs>
@@ -35,8 +35,8 @@
                 <path d="M0 0v-39.569" style="fill:none;stroke:#231f20;stroke-width:1.507;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(467.847 482.53)"/>
             </g>
         </g>
-        <g clip-path="url(#k)">
-            <g clip-path="url(#l)">
+        <g clip-path="url(#f)">
+            <g clip-path="url(#g)">
                 <path d="M0 0h-39.569" style="fill:none;stroke:#231f20;stroke-width:1.507;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(487.631 462.745)"/>
             </g>
         </g>
