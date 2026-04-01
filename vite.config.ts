@@ -1,7 +1,9 @@
 /// <reference types="vitest" />
+/// <reference types="vite-plugin-svgr/client" />
 import {defineConfig} from 'vitest/config'
 import preact from '@preact/preset-vite'
 import {VitePWA} from 'vite-plugin-pwa'
+import svgr from 'vite-plugin-svgr'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -10,6 +12,11 @@ export default defineConfig({
         environment: "jsdom",
     },
     plugins: [
+        svgr({
+            svgrOptions: {
+                ref: true,
+            },
+        }),
         preact(),
         VitePWA({
             registerType: "autoUpdate",
