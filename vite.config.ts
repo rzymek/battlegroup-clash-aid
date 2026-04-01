@@ -15,6 +15,7 @@ export default defineConfig({
         svgr({
             svgrOptions: {
                 ref: true,
+                dimensions: false,
             },
         }),
         preact(),
