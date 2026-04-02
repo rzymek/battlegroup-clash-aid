@@ -65,18 +65,18 @@ function Select<T extends {}, R extends keyof T, K extends T[R] & string>(props:
 
   return <>
     {allKeys.map(value =>
-    <Selectable selected={obj[key] === value}
-                onClick={toggle(obj, key, value)}>
-      <SvgContent svg={props.values[value]} key={value}/>
-    </Selectable>
-  )}</>
+      <Selectable selected={obj[key] === value}
+                  onClick={toggle(obj, key, value)}>
+        <SvgContent svg={props.values[value]} key={value}/>
+      </Selectable>
+    )}</>
 }
 
 export function App() {
   return (
     <div>
       <div style={{display: 'grid', gridTemplateColumns: '33% 33% 33%', gap: 3}}>
-        <div style={{display: 'flex', gap: 1, borderRight: 'solid 1px black', flexWrap: 'wrap'}}>
+        <div style={{borderRight: 'solid 1px black'}}>
           {([6, 5, 4, 3] as const).map(v =>
             <Selectable selected={state.direct.attacker.TQ === v} onClick={toggle(state.direct.attacker, 'TQ', v)}
                         key={v}>
@@ -86,11 +86,11 @@ export function App() {
           <Togglable svg={overwatch} of={[state.direct.attacker, 'overwatch', true]}/>
           <Select of={[state.direct.attacker, 'moved']} values={moved}/>
         </div>
-        <div style={{display: 'flex', gap: 1, borderRight: 'solid 1px black', flexWrap: 'wrap'}}>
-          <Togglable svg={SameWoodsUrban} of={[state.direct.between, 'sameWoodsUrban', true]}/>
-          <Select of={[state.direct.between, 'losThrough']} values={losThrough}/>
+        <div style={{borderRight: 'solid 1px black'}}>
+            <Togglable svg={SameWoodsUrban} of={[state.direct.between, 'sameWoodsUrban', true]}/>
+            <Select of={[state.direct.between, 'losThrough']} values={losThrough}/>
         </div>
-        <div style={{display: 'block', gap: 1, flexWrap: 'wrap'}}>
+        <div>
           <Select of={[state.direct.defender, 'targetMarker']} values={targetMarker}/>
           <Select of={[state.direct.defender, 'footInTerrain']} values={footInTerrain}/>
           <Select of={[state.direct.defender, 'shellScrapes']} values={shellScrapesSvg}/>
