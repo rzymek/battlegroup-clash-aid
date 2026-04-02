@@ -23,6 +23,7 @@ export default defineConfig({
             registerType: "autoUpdate",
             workbox: {
                 globPatterns: ["**/*"],
+                maximumFileSizeToCacheInBytes: 5242880,
             },
             manifest: {
                 name: "bcb",

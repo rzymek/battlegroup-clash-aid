@@ -19,11 +19,9 @@ function Selectable(props: {
   children?: ReactNode,
 }) {
   return <div style={{
-    width: '1cm',
-    height: '1cm',
-    minHeight: '1cm',
+    minHeight: '15mm',
     maxHeight: '2cm',
-    minWidth: '1cm',
+    minWidth: '15mm',
     maxWidth: '2cm',
     display: 'inline-flex',
     borderStyle: 'solid',
@@ -75,7 +73,7 @@ function Select<T extends {}, R extends keyof T, K extends T[R] & string>(props:
 export function App() {
   return (
     <div>
-      <div style={{display: 'grid', gridTemplateColumns: '33% 33% 33%', gap: 3}}>
+      <div style={{display: 'grid', gridTemplateColumns: '40% 20% 40%', gap: 3}}>
         <div style={{borderRight: 'solid 1px black'}}>
           {([6, 5, 4, 3] as const).map(v =>
             <Selectable selected={state.direct.attacker.TQ === v} onClick={toggle(state.direct.attacker, 'TQ', v)}
