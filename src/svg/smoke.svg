@@ -81,10 +81,10 @@
         <clipPath id="E" clipPathUnits="userSpaceOnUse">
             <path d="M122.879 561.666h75.12v-75.12h-75.12z"/>
         </clipPath>
-        <clipPath id="H" clipPathUnits="userSpaceOnUse">
+        <clipPath id="G" clipPathUnits="userSpaceOnUse">
             <path d="M133.568 559.619a8.505 8.505 0 0 1-8.504-8.504v-53.858a8.504 8.504 0 0 1 8.504-8.504h53.858a8.504 8.504 0 0 1 8.504 8.504v53.858a8.504 8.504 0 0 1-8.504 8.504z"/>
         </clipPath>
-        <clipPath id="I" clipPathUnits="userSpaceOnUse">
+        <clipPath id="H" clipPathUnits="userSpaceOnUse">
             <path d="M140.497 549.185h39.999v-34.183h-39.999z"/>
         </clipPath>
         <clipPath id="J" clipPathUnits="userSpaceOnUse">
@@ -241,9 +241,9 @@
             </g>
         </g>
         <g clip-path="url(#E)" mask="url(#F)">
-            <g clip-path="url(#H)">
+            <g clip-path="url(#G)">
                 <path d="M0 0h-53.858a8.504 8.504 0 0 0-8.504 8.504v53.858a8.504 8.504 0 0 0 8.504 8.504H0a8.504 8.504 0 0 0 8.504-8.504V8.504A8.504 8.504 0 0 0 0 0" style="fill:#fff;fill-opacity:1;fill-rule:nonzero;stroke:none" transform="translate(187.426 488.753)"/>
-                <g clip-path="url(#I)">
+                <g clip-path="url(#H)">
                     <g clip-path="url(#J)">
                         <path d="M0 0a7.825 7.825 0 0 1-7.483 5.539 7.8 7.8 0 0 1-5.113-1.91 7.8 7.8 0 0 1-5.113 1.91c-3.903 0-7.13-2.862-7.718-6.6-4.198-.14-7.56-3.578-7.56-7.81 0-3.51 2.311-6.48 5.494-7.471.872-3.37 3.924-5.863 7.566-5.863a7.8 7.8 0 0 1 2.31.348 5.1 5.1 0 0 1 2.968-1.936c-.008-.098-.029-.193-.029-.294a3.307 3.307 0 1 1 6.612 0 3.28 3.28 0 0 1-1.206 2.534q.013.02.028.039c.307-.037.617-.061.934-.061 3.816 0 6.99 2.734 7.68 6.348 3.636.674 6.392 3.856 6.392 7.687C5.762-3.934 3.319-.906 0 0" style="fill:#918f90;fill-opacity:1;fill-rule:nonzero;stroke:none" transform="translate(174.11 543.021)"/>
                         <path d="M0 0a7.825 7.825 0 0 1-7.483 5.539 7.8 7.8 0 0 1-5.113-1.91 7.8 7.8 0 0 1-5.113 1.91c-3.903 0-7.13-2.862-7.718-6.6-4.198-.14-7.56-3.578-7.56-7.81 0-3.51 2.311-6.48 5.494-7.471.872-3.37 3.924-5.863 7.566-5.863a7.8 7.8 0 0 1 2.31.348 5.1 5.1 0 0 1 2.968-1.936c-.008-.098-.029-.193-.029-.294a3.307 3.307 0 1 1 6.612 0 3.28 3.28 0 0 1-1.206 2.534q.013.02.028.039c.307-.037.617-.061.934-.061 3.816 0 6.99 2.734 7.68 6.348 3.636.674 6.392 3.856 6.392 7.687C5.762-3.934 3.319-.906 0 0Z" style="fill:none;stroke:#231f20;stroke-width:1.25;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(174.11 543.021)"/>

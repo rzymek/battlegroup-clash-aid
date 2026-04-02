@@ -33,7 +33,7 @@
         <clipPath id="q" clipPathUnits="userSpaceOnUse">
             <path d="M426.158 785.46h70.411v-44.982h-70.411z"/>
         </clipPath>
-        <clipPath id="t" clipPathUnits="userSpaceOnUse">
+        <clipPath id="s" clipPathUnits="userSpaceOnUse">
             <path d="M442.407 777.026c-4.487 0-8.125-3.776-8.125-8.435v-11.245c0-4.658 3.638-8.434 8.125-8.434h37.913c4.488 0 8.124 3.776 8.124 8.434v11.245c0 4.659-3.636 8.435-8.124 8.435z"/>
         </clipPath>
         <clipPath id="p" clipPathUnits="userSpaceOnUse"/>
@@ -112,7 +112,7 @@
     </g>
     <g clip-path="url(#p)" transform="matrix(.35278 0 0 -.35278 -152.854 274.118)">
         <g clip-path="url(#q)" mask="url(#r)">
-            <g clip-path="url(#t)">
+            <g clip-path="url(#s)">
                 <path d="M30.772-15.312h56.693v28.346H30.772Z" style="fill:#f1471d;fill-opacity:1;fill-rule:nonzero;stroke:none" transform="matrix(.95536 0 0 -.9918 404.884 761.84)"/>
                 <path d="M0 0h56.693v28.346H0Z" style="fill:none;stroke:#f1471d;stroke-width:17.008;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="matrix(.95536 0 0 -.9918 434.282 777.026)"/>
                 <path d="m0 0-.721-5.295L-1.426 0Zm.201 1.425h-1.829l-.273 2.054h-1.47l1.642-10.5H.418l1.642 10.5H.475Z" style="fill:#fff;fill-opacity:1;fill-rule:nonzero;stroke:none" transform="matrix(.95536 0 0 -.9918 442.923 761.585)"/>

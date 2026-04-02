@@ -333,10 +333,10 @@
         <clipPath id="bo" clipPathUnits="userSpaceOnUse">
             <path d="M317.194 160.61h73.715V86.909h-73.715z"/>
         </clipPath>
-        <clipPath id="br" clipPathUnits="userSpaceOnUse">
+        <clipPath id="bq" clipPathUnits="userSpaceOnUse">
             <path d="M334.202 152.106a8.504 8.504 0 0 1-8.504-8.504v-39.685a8.504 8.504 0 0 1 8.504-8.504h39.685a8.504 8.504 0 0 1 8.504 8.504v39.685a8.504 8.504 0 0 1-8.504 8.504z"/>
         </clipPath>
-        <clipPath id="bs" clipPathUnits="userSpaceOnUse">
+        <clipPath id="br" clipPathUnits="userSpaceOnUse">
             <path d="M317.194 112.881h73.701v-9.921h-73.701z"/>
         </clipPath>
         <clipPath id="bt" clipPathUnits="userSpaceOnUse">
@@ -831,10 +831,10 @@
             </g>
         </g>
         <g clip-path="url(#bo)" mask="url(#bp)">
-            <g clip-path="url(#br)">
+            <g clip-path="url(#bq)">
                 <path d="M0 0h-39.685a8.504 8.504 0 0 0-8.504 8.504v39.685a8.504 8.504 0 0 0 8.504 8.504H0a8.504 8.504 0 0 0 8.504-8.504V8.504A8.504 8.504 0 0 0 0 0" style="fill:#f78f77;fill-opacity:1;fill-rule:nonzero;stroke:none" transform="translate(373.9 95.413)"/>
                 <path d="M0 0h-39.685a8.504 8.504 0 0 0-8.504 8.504v39.685a8.504 8.504 0 0 0 8.504 8.504H0a8.504 8.504 0 0 0 8.504-8.504V8.504A8.504 8.504 0 0 0 0 0Z" style="fill:none;stroke:#f78f77;stroke-width:17.008;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(373.9 95.413)"/>
-                <g clip-path="url(#bs)" opacity=".85">
+                <g clip-path="url(#br)" opacity=".85">
                     <g clip-path="url(#bt)">
                         <path d="M390.895 102.96h-73.701v9.921h73.701z" style="fill:#fff;fill-opacity:1;fill-rule:nonzero;stroke:none"/>
                     </g>

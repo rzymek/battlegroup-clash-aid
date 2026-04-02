@@ -1,14 +1,17 @@
 import './app.css'
 import TQ from './svg/TQ.svg?react'
-import target1 from './svg/target1.svg?react'
-import target2 from './svg/target2.svg?react'
-import moved from './svg/moved.svg?react'
-import digging from './svg/digging.svg?react'
+import overwatch from './svg/overwatch.svg?react'
+import SameWoodsUrban from './svg/same-dense-terrain.svg?react'
 import {SvgContent} from "./SvgContent.tsx";
 import {ReactNode} from 'react';
 import {state} from "./state/state.tsx";
 import {update} from "./state/update.ts";
 import {ComponentType} from "preact";
+import {footInTerrain} from "./footInTerrain.tsx";
+import {shellScrapesSvg} from "./shellScrapesSvg.tsx";
+import {moved} from "./moved.tsx";
+import {targetMarker} from "./targetMarker.tsx";
+import {losThrough} from "./losThrough.tsx";
 
 function Selectable(props: {
   selected?: boolean;
@@ -16,7 +19,13 @@ function Selectable(props: {
   children?: ReactNode,
 }) {
   return <div style={{
-    display: 'flex',
+    width: '1cm',
+    height: '1cm',
+    minHeight: '1cm',
+    maxHeight: '2cm',
+    minWidth: '1cm',
+    maxWidth: '2cm',
+    display: 'inline-flex',
     borderStyle: 'solid',
     borderWidth: 3,
     borderColor: props.selected ? 'blue' : 'transparent',
@@ -37,11 +46,6 @@ function Togglable<T extends {}, R extends keyof T>(props: {
   </Selectable>
 }
 
-const target = [
-  {svg: target1, v: 1},
-  {svg: target2, v: 2},
-] as const;
-
 function toggle<T extends {}, R extends keyof T>(obj: T, key: R, value: T[R]) {
   return update(() => {
     if (obj[key] === value) {
@@ -52,29 +56,47 @@ function toggle<T extends {}, R extends keyof T>(obj: T, key: R, value: T[R]) {
   });
 }
 
+function Select<T extends {}, R extends keyof T, K extends T[R] & string>(props: {
+  of: [T, R],
+  values: Record<K, ComponentType>
+}) {
+  const [obj, key] = props.of;
+  const allKeys = Object.keys(props.values) as K[];
+
+  return <>
+    {allKeys.map(value =>
+    <Selectable selected={obj[key] === value}
+                onClick={toggle(obj, key, value)}>
+      <SvgContent svg={props.values[value]} key={value}/>
+    </Selectable>
+  )}</>
+}
+
 export function App() {
   return (
     <div>
-      <div style={{height: '1cm', display: 'flex', gap: 1}}>
-        {[6, 5, 4, 3].map(v =>
-          <Selectable selected={state.direct.attacker.TQ === v} onClick={toggle(state.direct.attacker, 'TQ', v)}
-                      key={v}>
-            <SvgContent svg={TQ}>{v < 4 ? `${v}-` : v}</SvgContent>
-          </Selectable>
-        )}
+      <div style={{display: 'grid', gridTemplateColumns: '33% 33% 33%', gap: 3}}>
+        <div style={{display: 'flex', gap: 1, borderRight: 'solid 1px black', flexWrap: 'wrap'}}>
+          {([6, 5, 4, 3] as const).map(v =>
+            <Selectable selected={state.direct.attacker.TQ === v} onClick={toggle(state.direct.attacker, 'TQ', v)}
+                        key={v}>
+              <SvgContent svg={TQ}>{v < 4 ? `${v}-` : v}</SvgContent>
+            </Selectable>
+          )}
+          <Togglable svg={overwatch} of={[state.direct.attacker, 'overwatch', true]}/>
+          <Select of={[state.direct.attacker, 'moved']} values={moved}/>
+        </div>
+        <div style={{display: 'flex', gap: 1, borderRight: 'solid 1px black', flexWrap: 'wrap'}}>
+          <Togglable svg={SameWoodsUrban} of={[state.direct.between, 'sameWoodsUrban', true]}/>
+          <Select of={[state.direct.between, 'losThrough']} values={losThrough}/>
+        </div>
+        <div style={{display: 'block', gap: 1, flexWrap: 'wrap'}}>
+          <Select of={[state.direct.defender, 'targetMarker']} values={targetMarker}/>
+          <Select of={[state.direct.defender, 'footInTerrain']} values={footInTerrain}/>
+          <Select of={[state.direct.defender, 'shellScrapes']} values={shellScrapesSvg}/>
+        </div>
       </div>
-      <div style={{height: '1cm', display: 'flex', gap: 1}}>
-        {target.map(it =>
-          <Selectable selected={state.direct.defender.target === it.v}
-                      onClick={toggle(state.direct.defender, 'target', it.v)}
-                      key={it.v}>
-            <SvgContent svg={it.svg} key={it.v}/>
-          </Selectable>
-        )}
-        <Togglable svg={moved} of={[state.direct.attacker, 'moved', true]}/>
-        <Togglable svg={digging} of={[state.direct.attacker, 'digging', true]}/>
-      </div>
-      <pre style={{fontSize:6}}>{JSON.stringify(state, null, 2)}</pre>
+      <pre style={{fontSize: 6}}>{JSON.stringify(state, null, 2)}</pre>
     </div>
   )
 }
