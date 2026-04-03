@@ -71,8 +71,8 @@ function Select<T extends {}, R extends keyof T, K extends T[R] & string>(props:
 export function App() {
   return (
     <div>
-      <div style={{display: 'grid', gridTemplateColumns: '40% 1fr 40%', gap: 3}}>
-        <div style={{borderRight: 'solid 1px black'}}>
+      <div style={{display: 'grid', gridTemplateColumns: '40% 1fr 1fr', gap: 3}}>
+        <div style={{textAlign: 'center', borderRight: 'solid 1px black'}}>
           <Select of={[state.direct.attacker, 'TQ']} values={tq}/>
           <Togglable img={overwatch} of={[state.direct.attacker, 'overwatch', true]}/>
           <Select of={[state.direct.attacker, 'moved']} values={moved}/>
@@ -81,7 +81,7 @@ export function App() {
           <Togglable img={SameWoodsUrban} of={[state.direct.between, 'sameWoodsUrban', true]}/>
           <Select of={[state.direct.between, 'losThrough']} values={losThrough}/>
         </div>
-        <div>
+        <div style={{textAlign: 'center'}}>
           <Select of={[state.direct.defender, 'targetMarker']} values={targetMarker}/>
           <Select of={[state.direct.defender, 'footInTerrain']} values={footInTerrain}/>
           <Select of={[state.direct.defender, 'shellScrapes']} values={shellScrapesSvg}/>
