@@ -1,15 +1,20 @@
 import {clone} from "remeda"
 import {update} from "./update.ts"
+import {firetype} from "./firetype.tsx";
+import {combatTypes} from "./combatTypes.tsx";
 
 const initialState = {
+  combatTypes: 'direct' as typeof combatTypes[number],
+  result2d6: undefined as typeof undefined | number,
   direct: {
     attacker: {
       TQ: undefined as undefined | 6 | 5 | 4 | 3,
-      overwatch: undefined as undefined | true,
+      overwatch: undefined as undefined | 'yes',
       moved: undefined as undefined | 'nato' | 'russia',
+      firetype: undefined as undefined | typeof firetype[number],
     },
     between: {
-      sameWoodsUrban: undefined as undefined | true,
+      sameWoodsUrban: undefined as undefined | 'yes',
       losThrough: undefined as undefined | 'light-terrain' | 'smoke',
     },
     defender: {

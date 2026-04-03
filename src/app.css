@@ -2,3 +2,18 @@
     margin: 0 auto;
     max-width: 16cm;
 }
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+th, td {
+    border: 1px solid black;
+    padding: 8px;
+    background-color: #eae9e9;
+}
+
+th {
+    background-color: #cfcfcf;
+}

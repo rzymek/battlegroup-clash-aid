@@ -1,0 +1,1 @@
+export const firetype = ['1', '2', '3', '4', 'RPG', 'NLAW', 'Stabber', 'Javelin'] as const;

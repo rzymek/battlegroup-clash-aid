@@ -1,0 +1,34 @@
+import {describe, expect, test} from "vitest";
+import {calculateDRM} from "./calculateDRM.tsx";
+
+describe('calculateDRM', () => {
+  test('sample', () => {
+    const result = calculateDRM({
+      attacker: {
+        TQ: 6,
+        firetype: 'Javelin',
+        moved: undefined,
+        overwatch: "yes"
+      },
+      between: {
+        losThrough: undefined,
+        sameWoodsUrban: "yes"
+      },
+      defender: {
+        targetMarker: 2,
+        footInTerrain: undefined,
+        shellScrapes: undefined
+      }
+    })
+
+    expect(result).toEqual({
+      value: 2 + 2 + 2 + 2,
+      reasons: [
+        {modifier: 2, reason: "attacker.TQ"},
+        {modifier: 2, reason: "attacker.overwatch"},
+        {modifier: 2, reason: "between.sameWoodsUrban"},
+        {modifier: 2, reason: "defender.targetMarker"},
+      ]
+    })
+  })
+});
