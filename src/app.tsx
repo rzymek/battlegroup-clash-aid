@@ -1,8 +1,6 @@
 import './app.css'
-import TQ from './svg/TQ.svg?react'
 import overwatch from './svg/overwatch.svg?react'
 import SameWoodsUrban from './svg/same-dense-terrain.svg?react'
-import {SvgContent} from "./SvgContent.tsx";
 import {ReactNode} from 'react';
 import {state} from "./state/state.tsx";
 import {update} from "./state/update.ts";
@@ -12,6 +10,7 @@ import {shellScrapesSvg} from "./shellScrapesSvg.tsx";
 import {moved} from "./moved.tsx";
 import {targetMarker} from "./targetMarker.tsx";
 import {losThrough} from "./losThrough.tsx";
+import {tq} from "./tq.tsx";
 
 function Selectable(props: {
   selected?: boolean;
@@ -19,10 +18,7 @@ function Selectable(props: {
   children?: ReactNode,
 }) {
   return <div style={{
-    minHeight: '15mm',
-    maxHeight: '2cm',
-    minWidth: '15mm',
-    maxWidth: '2cm',
+    height: '15mm',
     display: 'inline-flex',
     borderStyle: 'solid',
     borderWidth: 3,
@@ -34,13 +30,14 @@ function Selectable(props: {
 
 function Togglable<T extends {}, R extends keyof T>(props: {
   of: [T, R, T[R]],
-  svg: ComponentType,
+  img: ComponentType,
   children?: string | number,
 }) {
+  const Img = props.img;
   const [obj, key, value] = props.of;
   return <Selectable selected={obj[key] === value}
                      onClick={toggle(obj, key, value)}>
-    <SvgContent svg={props.svg}>{props.children}</SvgContent>
+    <Img/>
   </Selectable>
 }
 
@@ -60,33 +57,29 @@ function Select<T extends {}, R extends keyof T, K extends T[R] & string>(props:
 }) {
   const [obj, key] = props.of;
   const allKeys = Object.keys(props.values) as K[];
-
   return <>
-    {allKeys.map(value =>
-      <Selectable selected={obj[key] === value}
-                  onClick={toggle(obj, key, value)}>
-        <SvgContent svg={props.values[value]} key={value}/>
-      </Selectable>
+    {allKeys.map(value => {
+        const Img = props.values[value] as ComponentType;
+        return <Selectable selected={obj[key] === value}
+                           onClick={toggle(obj, key, value)}>
+          <Img/>
+        </Selectable>;
+      }
     )}</>
 }
 
 export function App() {
   return (
     <div>
-      <div style={{display: 'grid', gridTemplateColumns: '40% 20% 40%', gap: 3}}>
+      <div style={{display: 'grid', gridTemplateColumns: '40% 1fr 40%', gap: 3}}>
         <div style={{borderRight: 'solid 1px black'}}>
-          {([6, 5, 4, 3] as const).map(v =>
-            <Selectable selected={state.direct.attacker.TQ === v} onClick={toggle(state.direct.attacker, 'TQ', v)}
-                        key={v}>
-              <SvgContent svg={TQ}>{v < 4 ? `${v}-` : v}</SvgContent>
-            </Selectable>
-          )}
-          <Togglable svg={overwatch} of={[state.direct.attacker, 'overwatch', true]}/>
+          <Select of={[state.direct.attacker, 'TQ']} values={tq}/>
+          <Togglable img={overwatch} of={[state.direct.attacker, 'overwatch', true]}/>
           <Select of={[state.direct.attacker, 'moved']} values={moved}/>
         </div>
-        <div style={{borderRight: 'solid 1px black'}}>
-            <Togglable svg={SameWoodsUrban} of={[state.direct.between, 'sameWoodsUrban', true]}/>
-            <Select of={[state.direct.between, 'losThrough']} values={losThrough}/>
+        <div style={{borderRight: 'solid 1px black', display:'flex', flexDirection:'column', alignItems:'center', minWidth: 100}}>
+          <Togglable img={SameWoodsUrban} of={[state.direct.between, 'sameWoodsUrban', true]}/>
+          <Select of={[state.direct.between, 'losThrough']} values={losThrough}/>
         </div>
         <div>
           <Select of={[state.direct.defender, 'targetMarker']} values={targetMarker}/>
