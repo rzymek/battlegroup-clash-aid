@@ -25,8 +25,8 @@ export function ProbabilityBar(props: { drm: { value: number } }) {
         alignItems: 'center',
         justifyContent: 'center',
         color: 'rgba(0,0,0,0.5)',
-      }}>
-        {result}: {resultProbability[result]}
+      }} title={`${result}: ${resultProbability[result]}`}>
+        {resultProbability[result] && <><b>{result}</b>: <i>{resultProbability[result]}</i></>}
       </div>
     )}
   </div>

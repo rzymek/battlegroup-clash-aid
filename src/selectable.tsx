@@ -21,7 +21,7 @@ export function Selectable(props: {
     borderColor: 'transparent',
     borderRadius: 6,
     userSelect: 'none',
-    ...(props.selected ? selectedStyle : {}),
     ...(props.style ?? {}),
+    ...(props.selected ? selectedStyle : {}),
   }} onClick={props.onClick}>{props.children}</div>
 }

@@ -1,12 +1,15 @@
-import { ReactNode } from "preact/compat";
+import {ReactNode} from "preact/compat";
+import {CSSProperties} from "preact";
 import {Togglable} from "./togglable.tsx";
 
 export function SelectionBar<T extends Record<string | number, any>, R extends keyof T>(props: {
   of: [T, R],
   values: readonly Exclude<T[R], undefined>[],
-  labels?: Partial<Record<T[R],ReactNode>>,
+  labels?: Partial<Record<T[R], ReactNode>>,
+  styles?: Partial<Record<T[R], CSSProperties>>,
 }) {
-  return <div className="SelectionBar" style={{
+  console.log(props.values, props.styles)
+  return <div style={{
     display: 'flex', gap: 0, flexDirection: 'row',
     borderCollapse: 'collapse',
   }}>
@@ -24,16 +27,17 @@ export function SelectionBar<T extends Record<string | number, any>, R extends k
         return <Togglable key={type}
                           of={[...props.of, type]}
                           selectedStyle={{
-                            background: 'lightblue'
+                            backgroundColor: 'lightblue'
                           }}
                           style={{
                             flex: 1,
                             display: 'grid',
                             borderStyle: 'none',
                             minWidth: 0,
+                            ...(props.styles?.[type] ?? {}),
                             ...corners
                           }}>
-          <div className="cell" style={{
+          <div style={{
             borderStyle: 'solid',
             borderColor: 'gray',
             borderWidth: 1,
@@ -45,10 +49,7 @@ export function SelectionBar<T extends Record<string | number, any>, R extends k
             minWidth: 0,
             ...corners,
           }}>
-            <span style={{
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-            }}>{props.labels?.[type] ?? type}</span>
+            {props.labels?.[type] ?? type}
           </div>
         </Togglable>;
       }

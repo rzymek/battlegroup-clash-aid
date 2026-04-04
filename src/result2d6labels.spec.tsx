@@ -1,5 +1,5 @@
 import {describe, expect, it} from 'vitest';
-import {result2d6labels} from "./result2d6labels.tsx";
+import {result2d6style} from "./result2d6style.tsx";
 import {State} from "./state/state.tsx";
 import {calculateDRM} from "./calculateDRM.tsx";
 
@@ -23,7 +23,7 @@ describe('result2d6labels', () => {
       }
     };
     expect(calculateDRM(forDrmMin1).value).toEqual(-1)
-    expect(result2d6labels(forDrmMin1)).toEqual({
+    expect(result2d6style(forDrmMin1)).toEqual({
       1: '-',
       2: '-',
       3: 'S',
