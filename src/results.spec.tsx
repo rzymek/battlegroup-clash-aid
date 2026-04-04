@@ -7,13 +7,14 @@ import {DRMDef, SubState} from "./calculateDRM.tsx";
 import {directDRM} from "./direct/DRM.tsx";
 import {indirectDRM} from "./indirect/DRM.tsx";
 
-function drmLabels(drm:DRMDef<SubState>) {
+function drmLabels<T extends SubState>(drm: DRMDef<T>) {
   return R.pipe(
-    drm,
+    drm as Record<string, any>,
     R.entries(),
+    R.filter(([sectionKey]) => sectionKey !== 'postprocess'),
     R.flatMap(([sectionKey, section]) =>
       R.pipe(
-        section,
+        section as Record<string, any>,
         R.keys(),
         R.map(key => `${sectionKey}.${key}`)
       )
