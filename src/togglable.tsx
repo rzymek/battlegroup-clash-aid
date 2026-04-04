@@ -1,6 +1,6 @@
 import {update} from "./state/update.ts";
 import './app.css'
-import {ReactNode} from 'react';
+import {ReactNode} from 'preact/compat';
 import {CSSProperties} from "preact";
 import {Selectable} from "./selectable.tsx";
 

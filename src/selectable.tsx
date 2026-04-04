@@ -1,4 +1,4 @@
-import {ReactNode} from 'react';
+import {ReactNode} from 'preact/compat';
 import {CSSProperties} from "preact";
 
 const defaultSelectedStyle: CSSProperties = {
