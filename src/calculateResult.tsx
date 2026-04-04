@@ -50,15 +50,16 @@ export const crt: Record<number, {
   [key in Header]: ResultValue
 }> = crtObj(rawCrt);
 
-export type ResultValue = 3 | 2 | 1 | 'S' | '-';
+export const resultValues = ['-', 'S', 1, 2, 3] as const;
+export type ResultValue = typeof resultValues[number];
 
-export function calculateResult(state: State, drm: number) {
-  if (state.result2d6 === undefined || state.direct.attacker.firetype === undefined) {
+export function calculateResult(state: State['direct'], roll2d6: number | undefined, drm: number) {
+  if (roll2d6 === undefined || state.attacker.firetype === undefined) {
     return undefined;
   }
-  const modifiedDiceRoll = narrow2d6(state.result2d6 + drm);
+  const modifiedDiceRoll = narrow2d6(roll2d6 + drm);
   const row = crt[modifiedDiceRoll]
-  const result = row[state.direct.attacker.firetype];
+  const result = row[state.attacker.firetype];
   return {modifiedDiceRoll, result};
 }
 

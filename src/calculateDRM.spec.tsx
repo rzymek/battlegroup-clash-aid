@@ -31,4 +31,29 @@ describe('calculateDRM', () => {
       ]
     })
   })
+  test('zero', () => {
+    const result = calculateDRM({
+      attacker: {
+        TQ: undefined,
+        firetype: 'Javelin',
+        moved: undefined,
+        overwatch: undefined
+      },
+      between: {
+        losThrough: undefined,
+        sameWoodsUrban: undefined
+      },
+      defender: {
+        targetMarker: undefined,
+        footInTerrain: undefined,
+        shellScrapes: undefined
+      }
+    })
+    expect(result).toEqual({
+      value: 0,
+      reasons: []
+    })
+  })
 });
+
+

@@ -11,10 +11,13 @@ import {tq} from "./tq.tsx";
 import {Togglable} from "./togglable.tsx";
 import {Select} from "./select.tsx";
 import {SelectionBar} from "./SelectionBar.tsx";
-import {firetype} from "./state/firetype.tsx";
+import {firetype, firetypeLabels} from "./state/firetype.tsx";
 import {combatTypes} from "./state/combatTypes.tsx";
-import {results2d6} from "./state/results2d6.tsx";
+import {roll2d6} from "./state/roll2d6.tsx";
 import {Results} from "./results.tsx";
+import {ProbabilityBar} from "./probabilityBar.tsx";
+import {calculateDRM} from "./calculateDRM.tsx";
+import {result2d6labels} from "./result2d6labels.tsx";
 
 export function App() {
   return (
@@ -48,10 +51,12 @@ export function App() {
           <Select of={[state.direct.defender, 'shellScrapes']} values={shellScrapesSvg}/>
         </div>
       </div>
-      <SelectionBar of={[state.direct.attacker, 'firetype']} values={firetype}/>
-      <br/>
-      <SelectionBar of={[state, 'result2d6']} values={results2d6}/>
-      <Results/>
+      <div style={{display: 'flex', flexDirection:'column', gap: 4}}>
+        <SelectionBar of={[state.direct.attacker, 'firetype']} values={firetype} labels={firetypeLabels}/>
+        <ProbabilityBar drm={calculateDRM(state.direct)}/>
+        <SelectionBar of={[state, 'roll2d6']} values={roll2d6} labels={result2d6labels(state.direct)}/>
+        <Results/>
+      </div>
       <pre style={{fontSize: 12}}>{JSON.stringify(state, null, 2)}</pre>
     </div>
   )

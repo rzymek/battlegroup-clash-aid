@@ -5,7 +5,7 @@ import {combatTypes} from "./combatTypes.tsx";
 
 const initialState = {
   combatTypes: 'direct' as typeof combatTypes[number],
-  result2d6: undefined as typeof undefined | number,
+  roll2d6: undefined as typeof undefined | number,
   direct: {
     attacker: {
       TQ: undefined as undefined | 6 | 5 | 4 | 3,

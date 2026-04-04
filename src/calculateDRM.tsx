@@ -22,7 +22,7 @@ const ignore = {
   Javelin: NaN
 } as const;
 
-const directDRM: DRMDef<State['direct']> = {
+export const directDRM: DRMDef<State['direct']> = {
   attacker: {
     TQ: {
       3: -1,
