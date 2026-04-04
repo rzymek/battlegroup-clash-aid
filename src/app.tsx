@@ -4,7 +4,7 @@ import {SelectionBar} from "./SelectionBar.tsx";
 import {combatTypes} from "./state/combatTypes.tsx";
 import {DirectFire} from "./directFire.tsx";
 import {IndirectFire} from "./indirect/indirectFire.tsx";
-import {Assault} from "./assault.tsx";
+import {Assault} from "./assault/assault.tsx";
 
 export function App() {
   return (

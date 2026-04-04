@@ -43,6 +43,23 @@ const initialState = {
       firetype: undefined as undefined | IndirectFireType,
     }
   },
+  assault: {
+    attacker: {
+      footAndTrackPresent: yesNo,
+      hq: undefined as undefined | 1 | 2 | 3,
+    },
+    location: {
+      smoke: yesNo,
+      bridge: yesNo,
+    },
+    defender:{
+      reorg: yesNo,
+      footAndTrackPresent: yesNo,
+      hq: undefined as undefined | 1 | 2 | 3,
+      shellScrapes: undefined as undefined | 'digging' | 'shellScrapes',
+      urbanDenseElevated: yesNo,
+    }
+  }
 }
 export const indirectLosToTargetSupport = ['recce', 'fst'] as const;
 export type IndirectLosToTargetSupport = typeof indirectLosToTargetSupport[number]
