@@ -1,5 +1,7 @@
 import {State} from "../state/state.tsx";
 import {DRMDef} from "../calculateDRM.tsx";
+import * as R from "remeda";
+import {narrow} from "./narrow.ts";
 
 const ignore = {
   2: NaN,
@@ -14,6 +16,10 @@ const ignore = {
 
 export const directDRM: DRMDef<State['direct']> = {
   attacker: {
+    suppression: {
+      suppressed: -1,
+      disrupted: -2,
+    },
     TQ: {
       3: -1,
       4: 0,
@@ -55,9 +61,21 @@ export const directDRM: DRMDef<State['direct']> = {
       shellScrapes: -2,
     }
   },
+  preprocess(state) {
+    const suppression = state.attacker.suppression;
+    if (suppression !== undefined) {
+      state = R.pipe(state, R.clone())
+      if (state.attacker.TQ !== undefined) {
+        state.attacker.TQ = narrow(3, 6, Number(state.attacker.TQ) + directDRM.attacker.suppression[suppression]) as 6 | 5 | 4 | 3
+      }
+    }
+    console.log(state)
+    return state;
+  },
   postprocess(result, state) {
     result = result.filter(r => r.reason !== 'between.lessThen250m')
-    if(state.between.lessThen250m && state.between.losThrough) { // **
+    result = result.filter(r => r.reason !== 'attacker.suppression')
+    if (state.between.lessThen250m && state.between.losThrough) { // **
       result = result.filter(r => r.reason !== 'between.losThrough')
     }
     return result;

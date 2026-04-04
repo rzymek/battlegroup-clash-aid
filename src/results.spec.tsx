@@ -6,12 +6,13 @@ import {reasonLabels as indirectLabels} from "./indirect/ReasonLabels.tsx";
 import {DRMDef, SubState} from "./calculateDRM.tsx";
 import {directDRM} from "./direct/DRM.tsx";
 import {indirectDRM} from "./indirect/DRM.tsx";
+import {isFunction} from "remeda";
 
 function drmLabels<T extends SubState>(drm: DRMDef<T>) {
   return R.pipe(
     drm as Record<string, any>,
     R.entries(),
-    R.filter(([sectionKey]) => sectionKey !== 'postprocess'),
+    R.filter(([, value]) => !isFunction(value)),
     R.flatMap(([sectionKey, section]) =>
       R.pipe(
         section as Record<string, any>,
@@ -42,6 +43,7 @@ describe('results', () => {
         "attacker.TQ",
         "attacker.moved",
         "attacker.overwatch",
+        "attacker.suppression",
         "between.lessThen250m",
         "between.losThrough",
         "between.sameWoodsUrban",

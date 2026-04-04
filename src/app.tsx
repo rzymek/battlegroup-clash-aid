@@ -11,6 +11,7 @@ export function App() {
     <div>
       <SelectionBar of={[state, 'combatTypes']} values={combatTypes}/>
       <Router/>
+      {/*<pre>{JSON.stringify(state, null, 2)}</pre>*/}
     </div>
   )
 }

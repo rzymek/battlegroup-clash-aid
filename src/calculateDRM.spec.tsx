@@ -6,6 +6,7 @@ describe('calculateDRM', () => {
   test('sample', () => {
     const result = calculateDRM({
       attacker: {
+        suppression: undefined,
         TQ: 6,
         firetype: 'Javelin',
         moved: undefined,
@@ -36,6 +37,7 @@ describe('calculateDRM', () => {
   test('zero', () => {
     const result = calculateDRM({
       attacker: {
+        suppression: undefined,
         TQ: undefined,
         firetype: 'Javelin',
         moved: undefined,

@@ -1,4 +1,5 @@
 import * as R from "remeda";
+import {isFunction} from "remeda";
 
 export type DRMRow = { modifier: number, reason: string }
 type DRM<T extends string | number | undefined> = {
@@ -10,6 +11,7 @@ export type DRMDef<T extends SubState> = {
   }
 } & {
   postprocess?(result: DRMRow[], state: T): DRMRow[] | undefined
+  preprocess?(state: T): T | undefined
 }
 export type SubState<FT extends string = string> = Record<string, Record<string, number | string | undefined>> & {
   attacker: {
@@ -18,6 +20,7 @@ export type SubState<FT extends string = string> = Record<string, Record<string,
 }
 
 export function calculateDRM<T extends SubState>(state: T, drm: DRMDef<T>) {
+  state = drm.preprocess?.(state) ?? state;
 
   function sectionDRM(section: keyof typeof drm) {
     const stateElement: Record<string, string | number | undefined> = state[section];
@@ -39,9 +42,9 @@ export function calculateDRM<T extends SubState>(state: T, drm: DRMDef<T>) {
 
   const allReasons = R.pipe(
     drm as Record<string, any>,
-    R.keys(),
-    R.filter(it => it !== 'postprocess'),
-    R.map(it => sectionDRM(it)),
+    R.entries(),
+    R.filter(([, value]) => !isFunction(value)),
+    R.map(([key]) => sectionDRM(key)),
     R.flat(),
   );
   const reasons = drm.postprocess?.(allReasons, state) ?? allReasons;

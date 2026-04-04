@@ -2,7 +2,7 @@ import {Select} from "./select.tsx";
 import {state} from "./state/state.tsx";
 import {tq} from "./tq.tsx";
 import {Togglable} from "./togglable.tsx";
-import overwatch from "./svg/overwatch.svg?react";
+import Overwatch from "./svg/overwatch.svg?react";
 import {moved} from "./moved.tsx";
 import SameWoodsUrban from "./svg/same-dense-terrain.svg?react";
 import LessThen250m from "./svg/250m.svg?react";
@@ -20,6 +20,7 @@ import {DRMExplained} from "./DRMExplained.tsx";
 import {directDRM} from "./direct/DRM.tsx";
 import {directCRT} from "./direct/CRT.ts";
 import {reasonLabels} from "./direct/ReasonLabels.tsx";
+import {suppression} from "./suppression.tsx";
 
 export function DirectFire() {
   return <>
@@ -29,8 +30,9 @@ export function DirectFire() {
         padding: 4,
       }}>
         <Select of={[state.direct.attacker, 'TQ']} values={tq}/>
-        <Togglable of={[state.direct.attacker, 'overwatch', 'yes']}>{overwatch}</Togglable>
+        <Togglable of={[state.direct.attacker, 'overwatch', 'yes']}><Overwatch/></Togglable>
         <Select of={[state.direct.attacker, 'moved']} values={moved}/>
+        <Select of={[state.direct.attacker, 'suppression']} values={suppression}/>
       </div>
       <div style={{
         borderRight: 'solid 1px black',

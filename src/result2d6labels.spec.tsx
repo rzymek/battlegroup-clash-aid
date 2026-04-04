@@ -9,6 +9,7 @@ describe('result2d6labels', () => {
   it('should return crt row', () => {
     const forDrmMin1:State['direct'] = {
       attacker: {
+        suppression: undefined,
         TQ: undefined,
         firetype: '4',
         moved: undefined,

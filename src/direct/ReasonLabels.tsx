@@ -7,5 +7,6 @@ export const reasonLabels: Record<string, string> = {
   'defender.footInTerrain': 'Target is Foot FE in Light Wood/ Light Urban / Dense Wood/Urban',
   'defender.shellScrapes': 'Target has Digging / Shell Scrape marker',
   'attacker.moved': 'Firing FE taking Move-Fire Action - NATO / Russia',
-  'between.lessThen250m': '** Do not apply if Move-Fire within 250m'
+  'between.lessThen250m': '** Do not apply if Move-Fire within 250m',
+  'attacker.suppression':'* Remember Suppression / Disruption reduce TQ',
 };

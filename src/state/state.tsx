@@ -10,6 +10,7 @@ const initialState = {
   roll2d6: undefined as typeof undefined | number,
   direct: {
     attacker: {
+      suppression: undefined as undefined | 'suppressed' | 'disrupted',
       TQ: undefined as undefined | 6 | 5 | 4 | 3,
       overwatch: yesNo,
       moved: undefined as undefined | 'nato' | 'russia',
@@ -41,7 +42,7 @@ const initialState = {
     attacker: {
       firetype: undefined as undefined | IndirectFireType,
     }
-  }
+  },
 }
 export const indirectLosToTargetSupport = ['recce', 'fst'] as const;
 export type IndirectLosToTargetSupport = typeof indirectLosToTargetSupport[number]
