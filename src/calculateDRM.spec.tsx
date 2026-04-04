@@ -13,7 +13,8 @@ describe('calculateDRM', () => {
       },
       between: {
         losThrough: undefined,
-        sameWoodsUrban: "yes"
+        sameWoodsUrban: "yes",
+        lessThen250m: "yes",
       },
       defender: {
         targetMarker: 2,
@@ -42,7 +43,8 @@ describe('calculateDRM', () => {
       },
       between: {
         losThrough: undefined,
-        sameWoodsUrban: undefined
+        sameWoodsUrban: undefined,
+        lessThen250m: undefined,
       },
       defender: {
         targetMarker: undefined,

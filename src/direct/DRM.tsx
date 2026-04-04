@@ -36,6 +36,9 @@ export const directDRM: DRMDef<State['direct']> = {
     losThrough: {
       "light-terrain": -2,
       smoke: -3
+    },
+    lessThen250m: {
+      yes: 0,
     }
   },
   defender: {
@@ -51,5 +54,12 @@ export const directDRM: DRMDef<State['direct']> = {
       digging: -1,
       shellScrapes: -2,
     }
+  },
+  postprocess(result, state) {
+    result = result.filter(r => r.reason !== 'between.lessThen250m')
+    if(state.between.lessThen250m && state.between.losThrough) { // **
+      result = result.filter(r => r.reason !== 'between.losThrough')
+    }
+    return result;
   }
 }

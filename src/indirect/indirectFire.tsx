@@ -9,7 +9,7 @@ import recce from "../svg/recce.png";
 import Tracked from "../svg/tracked.svg?react";
 import {ComponentType} from "preact";
 import {imgComp} from "../imgComp.tsx";
-import {footInTerrain} from "../footInTerrain.tsx";
+import {allTerrain} from "../footInTerrain.tsx";
 import {shellScrapesSvg} from "../shellScrapesSvg.tsx";
 import {SelectionBar} from "../SelectionBar.tsx";
 import {roll2d6} from "../state/roll2d6.tsx";
@@ -35,7 +35,7 @@ export function IndirectFire() {
       </div>
       <div style={{textAlign: 'center', padding: 4,}}>
         <Select of={[state.indirect.target, 'marker']} values={targetMarker}/>
-        <Select of={[state.indirect.target, 'footInTerrain']} values={footInTerrain}/>
+        <Select of={[state.indirect.target, 'footInTerrain']} values={allTerrain}/>
         <Togglable of={[state.indirect.target, 'moved', 'yes']}>{imgComp(moved)()}</Togglable>
         <Select of={[state.indirect.target, 'shellScrapes']} values={shellScrapesSvg}/>
         <Togglable of={[state.indirect.target, 'tracked', 'yes']}><Tracked/></Togglable>
@@ -44,7 +44,8 @@ export function IndirectFire() {
     <div style={{display: 'flex', flexDirection: 'column', gap: 4}}>
       <SelectionBar of={[state.indirect.attacker, 'firetype']} values={indirectFireType}/>
       <ProbabilityBar drm={indirectDRM} state={state.indirect} crt={indirectCRT}/>
-      <SelectionBar of={[state, 'roll2d6']} values={roll2d6} styles={result2d6style(state.indirect, indirectDRM, indirectCRT)}/>
+      <SelectionBar of={[state, 'roll2d6']} values={roll2d6}
+                    styles={result2d6style(state.indirect, indirectDRM, indirectCRT)}/>
       <Result drm={indirectDRM} state={state.indirect} crt={indirectCRT}/>
       <DRMExplained drm={indirectDRM} state={state.indirect} reasonLabels={reasonLabels}/>
     </div>

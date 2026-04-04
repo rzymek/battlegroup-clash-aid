@@ -14,8 +14,10 @@ export const indirectDRM: DRMDef<State['indirect']> = {
       2: +2,
     },
     footInTerrain: {
-      light: -1,
-      dense: -2,
+      lightWood: -1,
+      lightUrban: -1,
+      denseWood: -2,
+      urban: -2,
     },
     moved: {
       yes: -2,
@@ -40,5 +42,17 @@ export const indirectDRM: DRMDef<State['indirect']> = {
   attacker: {
     firetype: ignore
   },
+  postprocess(result, state) {
+    if (state.attacker.firetype === 'FPV' && state.target.moved) { // **
+      result = result.filter(it => it.reason !== 'target.moved')
+    }
+    if(state.attacker.firetype === '152/155mm') { // *
+      const woods:State['indirect']['target']['footInTerrain'][] = ['lightWood', "denseWood"];
+      if(woods.includes(state.target.footInTerrain)) {
+        result = result.filter(it => it.reason !== 'target.footInTerrain')
+      }
+    }
+    return result;
+  }
 }
 

@@ -5,6 +5,7 @@ import {Togglable} from "./togglable.tsx";
 import overwatch from "./svg/overwatch.svg?react";
 import {moved} from "./moved.tsx";
 import SameWoodsUrban from "./svg/same-dense-terrain.svg?react";
+import LessThen250m from "./svg/250m.svg?react";
 import {losThrough} from "./losThrough.tsx";
 import {targetMarker} from "./targetMarker.tsx";
 import {footInTerrain} from "./footInTerrain.tsx";
@@ -43,6 +44,7 @@ export function DirectFire() {
           <SameWoodsUrban/>
         </Togglable>
         <Select of={[state.direct.between, 'losThrough']} values={losThrough}/>
+        <Togglable of={[state.direct.between, 'lessThen250m', 'yes']}><LessThen250m/></Togglable>
       </div>
       <div style={{textAlign: 'center', padding: 4}}>
         <Select of={[state.direct.defender, 'targetMarker']} values={targetMarker}/>
@@ -53,7 +55,8 @@ export function DirectFire() {
     <div style={{display: 'flex', flexDirection: 'column', gap: 4}}>
       <SelectionBar of={[state.direct.attacker, 'firetype']} values={firetype} labels={firetypeLabels}/>
       <ProbabilityBar drm={directDRM} state={state.direct} crt={directCRT}/>
-      <SelectionBar of={[state, 'roll2d6']} values={roll2d6} styles={result2d6style(state.direct, directDRM, directCRT)}/>
+      <SelectionBar of={[state, 'roll2d6']} values={roll2d6}
+                    styles={result2d6style(state.direct, directDRM, directCRT)}/>
       <Result drm={directDRM} state={state.direct} crt={directCRT}/>
       <DRMExplained drm={directDRM} state={state.direct} reasonLabels={reasonLabels}/>
     </div>

@@ -41,6 +41,7 @@ describe('results', () => {
         "attacker.TQ",
         "attacker.moved",
         "attacker.overwatch",
+        "between.lessThen250m",
         "between.losThrough",
         "between.sameWoodsUrban",
         "defender.footInTerrain",

@@ -18,6 +18,7 @@ const initialState = {
     between: {
       sameWoodsUrban: yesNo,
       losThrough: undefined as undefined | 'light-terrain' | 'smoke',
+      lessThen250m: yesNo,
     },
     defender: {
       targetMarker: undefined as undefined | 1 | 2,
@@ -32,7 +33,7 @@ const initialState = {
     },
     target: {
       marker: undefined as undefined | 1 | 2,
-      footInTerrain: undefined as undefined | 'light' | 'dense',
+      footInTerrain: undefined as undefined | 'lightWood' | 'denseWood' | 'lightUrban' | 'urban',
       moved: yesNo,
       shellScrapes: undefined as undefined | 'digging' | 'shellScrapes',
       tracked: yesNo,

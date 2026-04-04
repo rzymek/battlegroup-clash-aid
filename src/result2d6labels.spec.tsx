@@ -16,7 +16,8 @@ describe('result2d6labels', () => {
       },
       between: {
         losThrough: undefined,
-        sameWoodsUrban: undefined
+        sameWoodsUrban: undefined,
+        lessThen250m: undefined,
       },
       defender: {
         targetMarker: undefined,
