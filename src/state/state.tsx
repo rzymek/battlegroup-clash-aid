@@ -6,7 +6,7 @@ import {combatTypes} from "./combatTypes.tsx";
 const yesNo = undefined as undefined | 'yes';
 
 const initialState = {
-  combatTypes: 'indirect' as typeof combatTypes[number],
+  combatTypes: 'direct' as typeof combatTypes[number],
   roll2d6: undefined as typeof undefined | number,
   direct: {
     attacker: {
