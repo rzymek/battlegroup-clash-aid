@@ -1,14 +1,19 @@
-import {calculateResult, resultValues} from "./calculateResult.tsx";
-import {state} from "./state/state.tsx";
+import {calculateResult, CRT, resultValues} from "./calculateResult.tsx";
 import * as R from 'remeda';
 import {resultColors} from "./resultColors.tsx";
+import {calculateDRM, DRMDef, SubState} from "./calculateDRM.tsx";
 
-export function ProbabilityBar(props: { drm: { value: number } }) {
+export function ProbabilityBar<T extends SubState>(props: {
+  state: T,
+  drm: DRMDef<T>
+  crt: CRT<Exclude<T['attacker']['firetype'], undefined>>
+}) {
   const d6 = [1, 2, 3, 4, 5, 6];
+  const drm = calculateDRM(props.state, props.drm);
   const resultProbability = R.pipe(
     d6,
     R.flatMap(d1 => d6.map(d2 => d1 + d2)),
-    R.map(roll2d6 => calculateResult(state.direct, roll2d6, props.drm.value)?.result),
+    R.map(roll2d6 => calculateResult(props.state.attacker.firetype, props.crt, roll2d6, drm.value)?.result),
     R.groupBy(it => it),
     R.mapValues(arr => ((100 * arr.length) / (6 * 6)).toFixed().padStart(2, ' ') + '%')
   )

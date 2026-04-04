@@ -1,5 +1,6 @@
 import {describe, expect, test} from "vitest";
 import {calculateDRM} from "./calculateDRM.tsx";
+import {directDRM} from "./direct/DRM.tsx";
 
 describe('calculateDRM', () => {
   test('sample', () => {
@@ -19,7 +20,7 @@ describe('calculateDRM', () => {
         footInTerrain: undefined,
         shellScrapes: undefined
       }
-    })
+    }, directDRM)
 
     expect(result).toEqual({
       value: 2 + 2 + 2 + 2,
@@ -48,7 +49,7 @@ describe('calculateDRM', () => {
         footInTerrain: undefined,
         shellScrapes: undefined
       }
-    })
+    }, directDRM)
     expect(result).toEqual({
       value: 0,
       reasons: []

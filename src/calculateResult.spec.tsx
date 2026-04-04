@@ -1,15 +1,16 @@
 import {describe, expect, test} from "vitest";
-import {crt, narrow2d6} from "./calculateResult";
+import {narrow2d6} from "./calculateResult";
+import {directCRT} from "./direct/CRT.ts";
 
 describe('calculateResult', () => {
   test('narrow2d6', () => {
     const _actual = [-2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
     const _expect = [+1, +1, 1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 12, 12];
-    expect(_actual.map(narrow2d6)).toEqual(_expect)
+    expect(_actual.map(it=>narrow2d6(it, directCRT))).toEqual(_expect)
   });
 
   test('crt', () => {
-    expect(crt).toEqual({
+    expect(directCRT).toEqual({
         1: {"1": "-", "2": "-", "3": "-", "4": "-", "Javelin": "-", "NLAW": "-", "RPG": "-", "Stabber": "-",},
         2: {"1": "-", "2": "-", "3": "-", "4": "S", "Javelin": "S", "NLAW": "-", "RPG": "-", "Stabber": "-",},
         3: {"1": "-", "2": "-", "3": "S", "4": "S", "Javelin": "S", "NLAW": "S", "RPG": "-", "Stabber": "-",},

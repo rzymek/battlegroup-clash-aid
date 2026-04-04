@@ -1,4 +1,6 @@
 export const firetype = ['1', '2', '3', '4', 'RPG', 'NLAW', 'Stabber', 'Javelin'] as const;
+export type DirectFireType = typeof firetype[number];
+
 export const firetypeLabels = {
   NLAW: 'N\u00ADLAW',
   Stabber: 'Stabb\u00ADer',
