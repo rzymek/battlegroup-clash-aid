@@ -15,4 +15,3 @@ export const tq: Record<TQ, ComponentType> = {
   [3]: imgComp(tq3),
 } as const;
 
-console.log(tq)

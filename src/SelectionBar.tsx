@@ -8,7 +8,6 @@ export function SelectionBar<T extends Record<string | number, any>, R extends k
   labels?: Partial<Record<T[R], ReactNode>>,
   styles?: Partial<Record<T[R], CSSProperties>>,
 }) {
-  console.log(props.values, props.styles)
   return <div style={{
     display: 'flex', gap: 0, flexDirection: 'row',
     borderCollapse: 'collapse',

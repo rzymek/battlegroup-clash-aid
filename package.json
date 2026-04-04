@@ -17,7 +17,6 @@
     "build:z-clean": "rm -f vite.config.d.ts vite.config.js tsconfig*.tsbuildinfo"
   },
   "dependencies": {
-    "@babel/plugin-transform-react-jsx-source": "^7.27.1",
     "@preact/preset-vite": "^2.10.5",
     "@testing-library/preact": "^3.2.4",
     "@vite-pwa/assets-generator": "^1.0.2",
