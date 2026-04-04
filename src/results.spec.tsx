@@ -2,7 +2,8 @@ import {directDRM} from "./calculateDRM.tsx";
 import * as R from "remeda";
 
 import { describe, it, expect } from 'vitest';
-import {reasonLabels} from "./results.tsx";
+
+import {reasonLabels} from "./DRMExplained.tsx";
 
 describe('results', () => {
   it('should', () => {

@@ -14,10 +14,11 @@ import {SelectionBar} from "./SelectionBar.tsx";
 import {firetype, firetypeLabels} from "./state/firetype.tsx";
 import {combatTypes} from "./state/combatTypes.tsx";
 import {roll2d6} from "./state/roll2d6.tsx";
-import {Results} from "./results.tsx";
+import {Result} from "./result.tsx";
 import {ProbabilityBar} from "./probabilityBar.tsx";
 import {calculateDRM} from "./calculateDRM.tsx";
 import {result2d6style} from "./result2d6style.tsx";
+import {DRMExplained} from "./DRMExplained.tsx";
 
 export function App() {
   return (
@@ -55,9 +56,9 @@ export function App() {
         <SelectionBar of={[state.direct.attacker, 'firetype']} values={firetype} labels={firetypeLabels}/>
         <ProbabilityBar drm={calculateDRM(state.direct)}/>
         <SelectionBar of={[state, 'roll2d6']} values={roll2d6} styles={result2d6style(state.direct)}/>
-        <Results/>
+        <Result/>
+        <DRMExplained/>
       </div>
-      <pre style={{fontSize: 12}}>{JSON.stringify(state, null, 2)}</pre>
     </div>
   )
 }
