@@ -24,18 +24,17 @@ describe('result2d6labels', () => {
     };
     expect(calculateDRM(forDrmMin1).value).toEqual(-1)
     expect(result2d6style(forDrmMin1)).toEqual({
-      1: '-',
-      2: '-',
-      3: 'S',
-      4: 'S',
-      5: 1,
-      6: 1,
-      7: 1,
-      8: 2,
-      9: 2,
-      10: 2,
-      11: 2,
-      12: 2,
+      2: {backgroundColor: "lightgray"},
+      3: {backgroundColor: "yellow"},
+      4: {backgroundColor: "yellow"},
+      5: {backgroundColor: "lightpink"},
+      6: {backgroundColor: "lightpink"},
+      7: {backgroundColor: "lightpink"},
+      8: {backgroundColor: "orange"},
+      9: {backgroundColor: "orange"},
+      10: {backgroundColor: "orange"},
+      11: {backgroundColor: "orange"},
+      12: {backgroundColor: "red"},
     });
   });
 });
