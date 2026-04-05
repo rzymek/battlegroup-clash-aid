@@ -5,9 +5,9 @@ export function imgComp(src: string) {
 }
 
 export function Img(props: ImgHTMLAttributes) {
-  return <img src={props.src}
-              alt=""
-              style={{height: '15mm', width: 'auto', objectFit: 'contain'}}
-              {...props}
+  const {style={}, ...rest} = props;
+  return <img alt=""
+              style={{height: '15mm', width: 'auto', objectFit: 'contain', ...style}}
+              {...rest}
   />
 }

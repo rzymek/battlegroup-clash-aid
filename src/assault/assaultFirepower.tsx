@@ -25,7 +25,7 @@ const fpImg: Record<number, string> = {
   10: fp10,
 }
 
-function FirepowerKeyboard(props: { field: number[] }) {
+function FirepowerKeyboard(props: { field: number[], color:string }) {
   return <div style={{
     display: 'flex',
     gap: 3,
@@ -37,21 +37,21 @@ function FirepowerKeyboard(props: { field: number[] }) {
     {R.pipe(
       fpImg,
       R.entries(),
-      R.map(([v, img]) => <Img src={img} key={v}
+      R.map(([v, img]) => <Img src={img} key={v} style={{backgroundColor: props.color}}
                                onClick={update(() => props.field.push(Number(v)))}/>)
     )}
-    <Img src={backspace} onClick={update(() => props.field.pop())}/>
+    <Img src={backspace} onClick={update(() => props.field.pop())} style={{backgroundColor: props.color}}/>
   </div>
 }
 
-function FirepowerValue(props: { field: number[] }) {
+function FirepowerValue(props: { field: number[],color:string}) {
   const sum = R.pipe(props.field, R.sum());
   if (sum === 0) {
     return <div/>;
   }
   return <div style={{padding: 8}}>
     {sum} = {props.field.map((item) =>
-    <Img src={fpImg[item]} style={{height: '5mm', marginRight: 3}}/>
+    <Img src={fpImg[item]} style={{height: '5mm', marginRight: 3, backgroundColor: props.color}}/>
   )}
   </div>
 
@@ -60,24 +60,26 @@ function FirepowerValue(props: { field: number[] }) {
 export function AssaultFirepower() {
   return <div>
     <div style={{display: 'grid', gridTemplateColumns: '1fr 100px 1fr'}}>
-      <FirepowerKeyboard field={state.assault.firepower.attacker}/>
+      <FirepowerKeyboard field={state.assault.firepower.attacker} color='lightpink'/>
       <div style={{display: 'grid' ,gridTemplateRows:'1fr auto 1fr',
         border:'solid 1px black',
         borderTop: 'none',
         borderBottom: 'none',
+        alignItems:'center'
       }}>
-        <FirepowerValue field={state.assault.firepower.attacker}/>
+        <FirepowerValue field={state.assault.firepower.attacker} color='lightpink'/>
         <div style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: 8,
-          fontSize: '8mm'
-        }}>2.5 : 1
+          padding: 4,
+          fontSize: '8mm',
+          whiteSpace: 'nowrap',
+        }}>{R.sum(state.assault.firepower.attacker)} : {R.sum(state.assault.firepower.defender)}
         </div>
-        <FirepowerValue field={state.assault.firepower.defender}/>
+        <FirepowerValue field={state.assault.firepower.defender} color='lightblue'/>
       </div>
-      <FirepowerKeyboard field={state.assault.firepower.defender}/>
+      <FirepowerKeyboard field={state.assault.firepower.defender} color='lightblue'/>
     </div>
     <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr'}}>
     </div>
