@@ -5,13 +5,16 @@ import {combatTypes} from "./combatTypes.tsx";
 
 const yesNo = undefined as undefined | 'yes';
 
+export const tq = [6,5,4,3] as const;
+export type TQ = typeof tq[number];
+
 const initialState = {
   combatTypes: 'direct' as typeof combatTypes[number],
   roll2d6: undefined as typeof undefined | number,
   direct: {
     attacker: {
       suppression: undefined as undefined | 'suppressed' | 'disrupted',
-      TQ: undefined as undefined | 6 | 5 | 4 | 3,
+      TQ: undefined as undefined | TQ,
       overwatch: yesNo,
       moved: undefined as undefined | 'nato' | 'russia',
       firetype: undefined as undefined | DirectFireType,
@@ -45,17 +48,19 @@ const initialState = {
   },
   assault: {
     attacker: {
+      TQ: undefined as undefined | TQ,
       footAndTrackPresent: yesNo,
-      hq: undefined as undefined | 1 | 2 | 3,
+      hq: undefined as undefined | HQ,
     },
     location: {
       smoke: yesNo,
       bridge: yesNo,
     },
     defender:{
+      TQ: undefined as undefined | TQ,
       reorg: yesNo,
       footAndTrackPresent: yesNo,
-      hq: undefined as undefined | 1 | 2 | 3,
+      hq: undefined as undefined | HQ,
       shellScrapes: undefined as undefined | 'digging' | 'shellScrapes',
       urbanDenseElevated: yesNo,
     },
@@ -64,8 +69,9 @@ const initialState = {
       defender: [] as number[],
     }
   }
-
 }
+export const hq = [1 , 2 , 3] as const;
+export type HQ = typeof hq[number]
 export const indirectLosToTargetSupport = ['recce', 'fst'] as const;
 export type IndirectLosToTargetSupport = typeof indirectLosToTargetSupport[number]
 export const indirectFireType = ['FPV', 'Mortar', '152/155mm'] as const;

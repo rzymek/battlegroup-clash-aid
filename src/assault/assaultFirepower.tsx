@@ -49,8 +49,8 @@ function FirepowerValue(props: { field: number[],color:string}) {
   if (sum === 0) {
     return <div/>;
   }
-  return <div style={{padding: 8}}>
-    {sum} = {props.field.map((item) =>
+  return <div style={{padding: 8, textAlign:'center'}}>
+    {props.field.map((item) =>
     <Img src={fpImg[item]} style={{height: '5mm', marginRight: 3, backgroundColor: props.color}}/>
   )}
   </div>
@@ -59,29 +59,13 @@ function FirepowerValue(props: { field: number[],color:string}) {
 
 export function AssaultFirepower() {
   return <div>
-    <div style={{display: 'grid', gridTemplateColumns: '1fr 100px 1fr'}}>
-      <FirepowerKeyboard field={state.assault.firepower.attacker} color='lightpink'/>
-      <div style={{display: 'grid' ,gridTemplateRows:'1fr auto 1fr',
-        border:'solid 1px black',
-        borderTop: 'none',
-        borderBottom: 'none',
-        alignItems:'center'
-      }}>
-        <FirepowerValue field={state.assault.firepower.attacker} color='lightpink'/>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: 4,
-          fontSize: '8mm',
-          whiteSpace: 'nowrap',
-        }}>{R.sum(state.assault.firepower.attacker)} : {R.sum(state.assault.firepower.defender)}
-        </div>
-        <FirepowerValue field={state.assault.firepower.defender} color='lightblue'/>
-      </div>
-      <FirepowerKeyboard field={state.assault.firepower.defender} color='lightblue'/>
-    </div>
     <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr'}}>
+      <FirepowerKeyboard field={state.assault.firepower.attacker} color='lightpink'/>
+      <FirepowerKeyboard field={state.assault.firepower.defender} color='lightblue'/>
+      <FirepowerValue field={state.assault.firepower.attacker} color='lightpink'/>
+      <FirepowerValue field={state.assault.firepower.defender} color='lightblue'/>
     </div>
   </div>
 }
+
+
