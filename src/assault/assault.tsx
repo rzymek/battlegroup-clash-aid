@@ -15,9 +15,11 @@ import {result2d6style} from "../result2d6style.tsx";
 import {Result} from "../result.tsx";
 import {DRMExplained} from "../DRMExplained.tsx";
 import {reasonLabels} from "../indirect/ReasonLabels.tsx";
+import {AssaultFirepower} from "./assaultFirepower.tsx";
 
 export function Assault() {
   return <div>
+    <AssaultFirepower/>
     <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 3}}>
       <div style={{textAlign: 'center', padding: 4, borderRight: 'solid 1px black',}}>
         <Togglable of={[state.assault.attacker, 'footAndTrackPresent', 'yes']}><FootAndTrackedPresent/></Togglable>

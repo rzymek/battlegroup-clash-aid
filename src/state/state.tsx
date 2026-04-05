@@ -58,8 +58,13 @@ const initialState = {
       hq: undefined as undefined | 1 | 2 | 3,
       shellScrapes: undefined as undefined | 'digging' | 'shellScrapes',
       urbanDenseElevated: yesNo,
+    },
+    firepower: {
+      attacker: [] as number[],
+      defender: [] as number[],
     }
   }
+
 }
 export const indirectLosToTargetSupport = ['recce', 'fst'] as const;
 export type IndirectLosToTargetSupport = typeof indirectLosToTargetSupport[number]

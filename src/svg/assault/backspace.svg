@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="4.7827635mm"
+   height="4.8818793mm"
+   viewBox="0 0 4.7827635 4.8818793"
+   version="1.1"
+   id="svg12191"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="backspace.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview12193"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="14.10183"
+     inkscape:cx="2.8010549"
+     inkscape:cy="10.140528"
+     inkscape:window-width="2560"
+     inkscape:window-height="1006"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs12188" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-107.86384,-91.96509)">
+    <rect
+       style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.264583;stroke-opacity:1"
+       id="rect10160"
+       width="4.5181804"
+       height="4.6172962"
+       x="107.99613"
+       y="92.097382" />
+    <text
+       xml:space="preserve"
+       style="font-weight:bold;font-size:2.70288px;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed,  Bold';text-align:center;text-anchor:middle;fill:#020202;fill-opacity:1;stroke:none;stroke-width:0.178784;stroke-opacity:1"
+       x="110.21688"
+       y="95.355659"
+       id="text11860"><tspan
+         sodipodi:role="line"
+         id="tspan11858"
+         style="fill:#020202;fill-opacity:1;stroke:none;stroke-width:0.178784"
+         x="110.21688"
+         y="95.355659">⌫</tspan></text>
+  </g>
+</svg>
