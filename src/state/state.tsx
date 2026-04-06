@@ -47,22 +47,18 @@ const initialState = {
     }
   },
   assault: {
-    attacker: {
-      TQ: undefined as undefined | TQ,
-      footAndTrackPresent: yesNo,
-      hq: undefined as undefined | HQ,
-    },
-    location: {
-      smoke: yesNo,
-      bridge: yesNo,
-    },
-    defender:{
-      TQ: undefined as undefined | TQ,
-      reorg: yesNo,
-      footAndTrackPresent: yesNo,
-      hq: undefined as undefined | HQ,
-      shellScrapes: undefined as undefined | 'digging' | 'shellScrapes',
-      urbanDenseElevated: yesNo,
+    drm: {
+      attacker_TQ: undefined as undefined | TQ,
+      attacker_footAndTrackPresent: yesNo,
+      attacker_hq: undefined as undefined | HQ,
+      location_smoke: yesNo,
+      location_bridge: yesNo,
+      defender_TQ: undefined as undefined | TQ,
+      defender_reorg: yesNo,
+      defender_footAndTrackPresent: yesNo,
+      defender_hq: undefined as undefined | HQ,
+      defender_shellScrapes: undefined as undefined | 'digging' | 'shellScrapes',
+      defender_urbanDenseElevated: yesNo,
     },
     firepower: {
       attacker: [] as number[],
