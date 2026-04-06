@@ -1,12 +1,14 @@
 import {ReactNode} from "preact/compat";
 import {CSSProperties} from "preact";
 import {Togglable} from "./togglable.tsx";
+import {update} from "./state/update.ts";
 
 export function SelectionBar<T extends Record<string | number, any>, R extends keyof T>(props: {
   of: [T, R],
   values: readonly Exclude<T[R], undefined>[],
   labels?: Partial<Record<T[R], ReactNode>>,
   styles?: Partial<Record<T[R], CSSProperties>>,
+  required?: boolean,
 }) {
   return <div style={{
     display: 'flex', gap: 0, flexDirection: 'row',
@@ -28,6 +30,7 @@ export function SelectionBar<T extends Record<string | number, any>, R extends k
                           selectedStyle={{
                             backgroundColor: 'lightblue'
                           }}
+                          onClick={props.required ? update(() => props.of[0][props.of[1]] = type) : undefined}
                           style={{
                             flex: 1,
                             display: 'grid',

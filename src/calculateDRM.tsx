@@ -1,52 +1,33 @@
 import * as R from "remeda";
 import {isFunction} from "remeda";
 
-export type DRMRow = { modifier: number, reason: string }
-type DRM<T extends string | number | undefined> = {
-  [key in Exclude<T, undefined>]: number
-}
-export type DRMDef<T extends SubState> = {
-  [key in keyof T]: {
-    [subkey in keyof T[key]]: DRM<T[key][subkey]>
+export type DRMRow<T extends string = string> = { modifier: number, reason: T }
+
+export type DRMState = Record<string, string | number | undefined>;
+export type DRMDef<T extends { drm: DRMState }> = {
+  [key in keyof T['drm']]: {
+    [value in Exclude<T['drm'][key], undefined>]: number
   }
 } & {
   postprocess?(result: DRMRow[], state: T): DRMRow[] | undefined
   preprocess?(state: T): T | undefined
 }
-export type SubState<FT extends string = string> = Record<string, Record<string, number | string | undefined>> & {
-  attacker: {
-    firetype?: FT
-  } & Record<string, number | string | undefined>//TODO
-}
+export type SubState = { drm: DRMState, attacker: { firetype: string | undefined } }
 
-export function calculateDRM<T extends SubState>(state: T, drm: DRMDef<T>) {
+export function calculateDRM<T extends { drm: DRMState }>(state: T, drm: DRMDef<T>) {
   state = drm.preprocess?.(state) ?? state;
 
-  function sectionDRM(section: keyof typeof drm) {
-    const stateElement: Record<string, string | number | undefined> = state[section];
-    return R.pipe(
-      stateElement,
-      R.entries(),
-      R.flatMap(([key, value]) => {
-        if (value !== undefined) {
-          const sectionDef = drm[section];
-          const attackerElement = sectionDef[key as keyof typeof sectionDef];
-          const modifier: number = attackerElement[value as keyof typeof attackerElement]
-          return isFinite(modifier) ? [{modifier, reason: `${section as string}.${key}`}] : [];
-        } else {
-          return [];
-        }
-      }),
-    );
-  }
-
   const allReasons = R.pipe(
-    drm as Record<string, any>,
+    drm,
     R.entries(),
-    R.filter(([, value]) => !isFunction(value)),
-    R.map(([key]) => sectionDRM(key)),
-    R.flat(),
+    R.filter(([key, value]) => !isFunction(value) && state.drm[key] !== undefined),
+    R.map(([key, drmForKey]) => {
+      const stateVal = state.drm[key]
+      const modifier: number = drmForKey[stateVal as keyof typeof drmForKey];
+      return {modifier, reason: key};
+    }),
   );
+
   const reasons = drm.postprocess?.(allReasons, state) ?? allReasons;
 
   return {
@@ -57,4 +38,8 @@ export function calculateDRM<T extends SubState>(state: T, drm: DRMDef<T>) {
     ) as number,
     reasons,
   }
+}
+
+export type LabelsFor<D extends Record<string, object>> = {
+  [label in keyof D]: string
 }

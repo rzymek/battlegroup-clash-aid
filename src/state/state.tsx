@@ -5,68 +5,66 @@ import {combatTypes} from "./combatTypes.tsx";
 
 const yesNo = undefined as undefined | 'yes';
 
-export const tq = [6,5,4,3] as const;
+export const tq = [6, 5, 4, 3] as const;
 export type TQ = typeof tq[number];
 
 const initialState = {
   combatTypes: 'direct' as typeof combatTypes[number],
   roll2d6: undefined as typeof undefined | number,
   direct: {
+    drm: {
+      attacker_suppression: undefined as undefined | 'suppressed' | 'disrupted',
+      attacker_TQ: undefined as undefined | TQ,
+      attacker_overwatch: yesNo,
+      attacker_moved: undefined as undefined | 'nato' | 'russia',
+      between_sameWoodsUrban: yesNo,
+      between_losThrough: undefined as undefined | 'lightTerrain' | 'smoke',
+      between_lessThen250m: yesNo,
+      defender_targetMarker: undefined as undefined | 1 | 2,
+      defender_footInTerrain: undefined as undefined | 'light' | 'dense',
+      defender_shellScrapes: undefined as undefined | 'digging' | 'shellScrapes',
+    },
     attacker: {
-      suppression: undefined as undefined | 'suppressed' | 'disrupted',
-      TQ: undefined as undefined | TQ,
-      overwatch: yesNo,
-      moved: undefined as undefined | 'nato' | 'russia',
       firetype: undefined as undefined | DirectFireType,
-    },
-    between: {
-      sameWoodsUrban: yesNo,
-      losThrough: undefined as undefined | 'light-terrain' | 'smoke',
-      lessThen250m: yesNo,
-    },
-    defender: {
-      targetMarker: undefined as undefined | 1 | 2,
-      footInTerrain: undefined as undefined | 'light' | 'dense',
-      shellScrapes: undefined as undefined | 'digging' | 'shellScrapes',
     },
   },
   indirect: {
-    losSupport: {
-      uas: yesNo,
-      other: undefined as undefined | IndirectLosToTargetSupport,
-    },
-    target: {
-      marker: undefined as undefined | 1 | 2,
-      footInTerrain: undefined as undefined | 'lightWood' | 'denseWood' | 'lightUrban' | 'urban',
-      moved: yesNo,
-      shellScrapes: undefined as undefined | 'digging' | 'shellScrapes',
-      tracked: yesNo,
+    drm: {
+      losSupport_uas: yesNo,
+      losSupport_other: undefined as undefined | IndirectLosToTargetSupport,
+      target_marker: undefined as undefined | 1 | 2,
+      target_footInTerrain: undefined as undefined | 'lightWood' | 'denseWood' | 'lightUrban' | 'urban',
+      target_moved: yesNo,
+      target_shellScrapes: undefined as undefined | 'digging' | 'shellScrapes',
+      target_tracked: yesNo,
     },
     attacker: {
       firetype: undefined as undefined | IndirectFireType,
     }
   },
   assault: {
+    attacker: {
+      TQ: undefined as undefined | TQ,
+      firepower: [] as number[],
+    },
+    defender: {
+      TQ: undefined as undefined | TQ,
+      firepower: [] as number[],
+    },
     drm: {
-      attacker_TQ: undefined as undefined | TQ,
       attacker_footAndTrackPresent: yesNo,
       attacker_hq: undefined as undefined | HQ,
       location_smoke: yesNo,
       location_bridge: yesNo,
-      defender_TQ: undefined as undefined | TQ,
       defender_reorg: yesNo,
       defender_footAndTrackPresent: yesNo,
       defender_hq: undefined as undefined | HQ,
       defender_shellScrapes: undefined as undefined | 'digging' | 'shellScrapes',
       defender_urbanDenseElevated: yesNo,
     },
-    firepower: {
-      attacker: [] as number[],
-      defender: [] as number[],
-    }
   }
 }
-export const hq = [1 , 2 , 3] as const;
+export const hq = [1, 2, 3] as const;
 export type HQ = typeof hq[number]
 export const indirectLosToTargetSupport = ['recce', 'fst'] as const;
 export type IndirectLosToTargetSupport = typeof indirectLosToTargetSupport[number]

@@ -7,13 +7,13 @@ import lightWood from './svg/target-inf-light-woods.svg?react'
 import urban from './svg/target-inf-urban.svg?react'
 import lightUrban from './svg/target-inf-light-urban.svg?react'
 
-type FootInTerrain = Exclude<State['direct']['defender']['footInTerrain'], undefined>;
+type FootInTerrain = Exclude<State['direct']['drm']['defender_footInTerrain'], undefined>;
 export const footInTerrain: Record<FootInTerrain, ComponentType> = {
   light,
   dense,
 }
 
-export const allTerrain: Record<Exclude<State['indirect']['target']['footInTerrain'], undefined>, ComponentType> = {
+export const allTerrain: Record<Exclude<State['indirect']['drm']['target_footInTerrain'], undefined>, ComponentType> = {
   denseWood,
   lightUrban,
   lightWood,

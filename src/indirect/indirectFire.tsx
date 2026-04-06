@@ -30,15 +30,15 @@ export function IndirectFire() {
   return <div>
     <div style={{display: 'grid', gridTemplateColumns: '1fr 4fr', gap: 3}}>
       <div style={{textAlign: 'center', padding: 4, borderRight: 'solid 1px black',}}>
-        <Select of={[state.indirect.losSupport, 'other']} values={losSupport}/>
-        <Togglable of={[state.indirect.losSupport, 'uas', 'yes']}><UAS/></Togglable>
+        <Select of={[state.indirect.drm, 'losSupport_other']} values={losSupport}/>
+        <Togglable of={[state.indirect.drm, 'losSupport_uas', 'yes']}><UAS/></Togglable>
       </div>
       <div style={{textAlign: 'center', padding: 4,}}>
-        <Select of={[state.indirect.target, 'marker']} values={targetMarker}/>
-        <Select of={[state.indirect.target, 'footInTerrain']} values={allTerrain}/>
-        <Togglable of={[state.indirect.target, 'moved', 'yes']}>{imgComp(moved)()}</Togglable>
-        <Select of={[state.indirect.target, 'shellScrapes']} values={shellScrapesSvg}/>
-        <Togglable of={[state.indirect.target, 'tracked', 'yes']}><Tracked/></Togglable>
+        <Select of={[state.indirect.drm, 'target_marker']} values={targetMarker}/>
+        <Select of={[state.indirect.drm, 'target_footInTerrain']} values={allTerrain}/>
+        <Togglable of={[state.indirect.drm, 'target_moved', 'yes']}>{imgComp(moved)()}</Togglable>
+        <Select of={[state.indirect.drm, 'target_shellScrapes']} values={shellScrapesSvg}/>
+        <Togglable of={[state.indirect.drm, 'target_tracked', 'yes']}><Tracked/></Togglable>
       </div>
     </div>
     <div style={{display: 'flex', flexDirection: 'column', gap: 4}}>

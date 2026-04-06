@@ -1,9 +1,9 @@
-import {calculateDRM, DRMDef, SubState} from "./calculateDRM.tsx";
+import {calculateDRM, DRMDef, DRMState, LabelsFor} from "./calculateDRM.tsx";
 
-export function DRMExplained<T extends SubState>(props: {
+export function DRMExplained<T extends { drm: DRMState }>(props: {
   state: T,
   drm: DRMDef<T>
-  reasonLabels: Record<string, string>
+  reasonLabels: LabelsFor<DRMDef<T>>
 }) {
   const drm = calculateDRM(props.state, props.drm);
   if(drm.reasons.length === 0) return null;

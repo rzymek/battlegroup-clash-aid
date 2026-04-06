@@ -1,6 +1,6 @@
 import * as R from 'remeda';
 
-export function crtObj<T extends RawCRT>(arr: T):CRT<Header<T>> {
+export function crtObj<T extends RawCRT, RV = ResultValue>(arr: T):CRT<Header<T>,RV> {
   const [header, ...values] = arr;
   return R.pipe(
     values,
@@ -28,7 +28,7 @@ export type Header<T extends RawCRT> = Exclude<T[0][number], 'dice'>;
 
 export const resultValues = ['-', 'S', 1, 2, 3] as const;
 export type ResultValue = typeof resultValues[number];
-export type CRT<FT extends string>= Record<number, Record<FT, ResultValue>>
+export type CRT<FT extends string, RV = ResultValue>= Record<number, Record<FT, RV>>
 
 export function calculateResult<FT extends string>(firetype: FT|undefined, crt: Record<number, Record<FT, ResultValue>>, roll2d6: number | undefined, drm: number) {
   if (roll2d6 === undefined || firetype === undefined) {

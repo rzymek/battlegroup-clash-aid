@@ -1,54 +1,42 @@
 import {State} from "../state/state.tsx";
 import {DRMDef} from "../calculateDRM.tsx";
 
-const ignore = {
-  'FPV': NaN,
-  'Mortar': NaN,
-  '152/155mm': NaN,
-} as const;
-
 export const indirectDRM: DRMDef<State['indirect']> = {
-  target: {
-    marker: {
-      1: +1,
-      2: +2,
-    },
-    footInTerrain: {
-      lightWood: -1,
-      lightUrban: -1,
-      denseWood: -2,
-      urban: -2,
-    },
-    moved: {
-      yes: -2,
-    },
-    shellScrapes: {
-      digging: -1,
-      shellScrapes: -2,
-    },
-    tracked: {
-      yes: -3,
-    }
+  target_marker: {
+    1: +1,
+    2: +2,
   },
-  losSupport: {
-    uas: {
-      yes: 2,
-    },
-    other: {
-      recce: 1,
-      fst: 3,
-    }
+  target_footInTerrain: {
+    lightWood: -1,
+    lightUrban: -1,
+    denseWood: -2,
+    urban: -2,
   },
-  attacker: {
-    firetype: ignore
+  target_moved: {
+    yes: -2,
   },
-  postprocess(result, state) {
-    if (state.attacker.firetype === 'FPV' && state.target.moved) { // **
-      result = result.filter(it => it.reason !== 'target.moved')
+  target_shellScrapes: {
+    digging: -1,
+    shellScrapes: -2,
+  },
+  target_tracked: {
+    yes: -3,
+  },
+  losSupport_uas: {
+    yes: 2,
+  },
+  losSupport_other: {
+    recce: 1,
+    fst: 3,
+  },
+  postprocess
+  (result, state) {
+    if (state.attacker.firetype === 'FPV' && state.drm.target_moved) { // **
+      result = result.filter(it => it.reason !== 'drm.target_moved')
     }
-    if(state.attacker.firetype === '152/155mm') { // *
-      const woods:State['indirect']['target']['footInTerrain'][] = ['lightWood', "denseWood"];
-      if(woods.includes(state.target.footInTerrain)) {
+    if (state.attacker.firetype === '152/155mm') { // *
+      const woods: State['indirect']['drm']['target_footInTerrain'][] = ['lightWood', "denseWood"];
+      if (woods.includes(state.drm.target_footInTerrain)) {
         result = result.filter(it => it.reason !== 'target.footInTerrain')
       }
     }

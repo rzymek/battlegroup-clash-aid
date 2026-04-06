@@ -7,23 +7,19 @@ import {directCRT} from "./direct/CRT.ts";
 
 describe('result2d6labels', () => {
   it('should return crt row', () => {
-    const forDrmMin1:State['direct'] = {
-      attacker: {
-        suppression: undefined,
-        TQ: undefined,
-        firetype: '4',
-        moved: undefined,
-        overwatch: undefined
-      },
-      between: {
-        losThrough: undefined,
-        sameWoodsUrban: undefined,
-        lessThen250m: undefined,
-      },
-      defender: {
-        targetMarker: undefined,
-        footInTerrain: undefined,
-        shellScrapes: 'digging',
+    const forDrmMin1: State['direct'] = {
+      attacker: {firetype: '4'},
+      drm: {
+        attacker_suppression: undefined,
+        attacker_TQ: undefined,
+        attacker_moved: undefined,
+        attacker_overwatch: undefined,
+        between_losThrough: undefined,
+        between_sameWoodsUrban: undefined,
+        between_lessThen250m: undefined,
+        defender_targetMarker: undefined,
+        defender_footInTerrain: undefined,
+        defender_shellScrapes: 'digging',
       }
     };
     expect(calculateDRM(forDrmMin1, directDRM).value).toEqual(-1)

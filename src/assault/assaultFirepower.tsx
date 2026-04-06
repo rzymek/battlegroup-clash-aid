@@ -60,10 +60,10 @@ function FirepowerValue(props: { field: number[],color:string}) {
 export function AssaultFirepower() {
   return <div>
     <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr'}}>
-      <FirepowerKeyboard field={state.assault.firepower.attacker} color='lightpink'/>
-      <FirepowerKeyboard field={state.assault.firepower.defender} color='lightblue'/>
-      <FirepowerValue field={state.assault.firepower.attacker} color='lightpink'/>
-      <FirepowerValue field={state.assault.firepower.defender} color='lightblue'/>
+      <FirepowerKeyboard field={state.assault.attacker.firepower} color='lightpink'/>
+      <FirepowerKeyboard field={state.assault.defender.firepower} color='lightblue'/>
+      <FirepowerValue field={state.assault.attacker.firepower} color='lightpink'/>
+      <FirepowerValue field={state.assault.defender.firepower} color='lightblue'/>
     </div>
   </div>
 }

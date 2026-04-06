@@ -4,17 +4,18 @@ import {ReactNode} from 'preact/compat';
 import {CSSProperties} from "preact";
 import {Selectable} from "./selectable.tsx";
 
-export function Togglable<T extends {}, R extends keyof T>(props: {
+export function Togglable<T extends Record<R, 'yes'|undefined>, R extends keyof T>(props: {
   of: [T, R, T[R]],
   style?: CSSProperties,
   children: ReactNode,
   selectedStyle?: CSSProperties,
+  onClick?: ()=>void,
 }) {
   const [obj, key, value] = props.of;
   return <Selectable selected={obj[key] === value}
                      selectedStyle={props.selectedStyle}
                      style={props.style}
-                     onClick={toggle(obj, key, value)}>
+                     onClick={props.onClick ?? toggle(obj, key, value)}>
     {props.children}
   </Selectable>
 }

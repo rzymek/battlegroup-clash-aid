@@ -4,8 +4,8 @@ import smoke from './svg/los-through-smoke.svg?react'
 import {ComponentType} from "preact";
 import {imgComp} from "./imgComp.tsx";
 
-type LosThrough = Exclude<State['direct']['between']['losThrough'], undefined>;
+type LosThrough = Exclude<State['direct']['drm']['between_losThrough'], undefined>;
 export const losThrough: Record<LosThrough, ComponentType> = {
-  "light-terrain": imgComp(light),
+  "lightTerrain": imgComp(light),
   smoke
 }

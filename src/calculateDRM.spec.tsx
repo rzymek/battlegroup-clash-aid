@@ -6,52 +6,48 @@ describe('calculateDRM', () => {
   test('sample', () => {
     const result = calculateDRM({
       attacker: {
-        suppression: undefined,
-        TQ: 6,
         firetype: 'Javelin',
-        moved: undefined,
-        overwatch: "yes"
       },
-      between: {
-        losThrough: undefined,
-        sameWoodsUrban: "yes",
-        lessThen250m: "yes",
-      },
-      defender: {
-        targetMarker: 2,
-        footInTerrain: undefined,
-        shellScrapes: undefined
+      drm: {
+        attacker_suppression: undefined,
+        attacker_TQ: 6,
+        attacker_moved: undefined,
+        attacker_overwatch: "yes",
+        between_losThrough: undefined,
+        between_sameWoodsUrban: "yes",
+        between_lessThen250m: "yes",
+        defender_targetMarker: 2,
+        defender_footInTerrain: undefined,
+        defender_shellScrapes: undefined
       }
     }, directDRM)
 
     expect(result).toEqual({
       value: 2 + 2 + 2 + 2,
       reasons: [
-        {modifier: 2, reason: "attacker.TQ"},
-        {modifier: 2, reason: "attacker.overwatch"},
-        {modifier: 2, reason: "between.sameWoodsUrban"},
-        {modifier: 2, reason: "defender.targetMarker"},
+        {modifier: 2, reason: "attacker_TQ"},
+        {modifier: 2, reason: "attacker_overwatch"},
+        {modifier: 2, reason: "between_sameWoodsUrban"},
+        {modifier: 2, reason: "defender_targetMarker"},
       ]
     })
   })
   test('zero', () => {
     const result = calculateDRM({
+      drm: {
+        attacker_suppression: undefined,
+        attacker_TQ: undefined,
+        attacker_moved: undefined,
+        attacker_overwatch: undefined,
+        between_losThrough: undefined,
+        between_sameWoodsUrban: undefined,
+        between_lessThen250m: undefined,
+        defender_targetMarker: undefined,
+        defender_footInTerrain: undefined,
+        defender_shellScrapes: undefined
+      },
       attacker: {
-        suppression: undefined,
-        TQ: undefined,
-        firetype: 'Javelin',
-        moved: undefined,
-        overwatch: undefined
-      },
-      between: {
-        losThrough: undefined,
-        sameWoodsUrban: undefined,
-        lessThen250m: undefined,
-      },
-      defender: {
-        targetMarker: undefined,
-        footInTerrain: undefined,
-        shellScrapes: undefined
+        firetype: undefined
       }
     }, directDRM)
     expect(result).toEqual({

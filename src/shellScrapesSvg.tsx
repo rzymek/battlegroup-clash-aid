@@ -5,7 +5,7 @@ import {ComponentType} from "preact";
 import {imgComp} from "./imgComp.tsx";
 
 
-type ShellScrapes = Exclude<State['direct']['defender']['shellScrapes'], undefined>;
+type ShellScrapes = Exclude<State['direct']['drm']['defender_shellScrapes'], undefined>;
 export const shellScrapesSvg: Record<ShellScrapes, ComponentType> = {
   digging: imgComp(digging),
   shellScrapes,

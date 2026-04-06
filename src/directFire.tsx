@@ -29,10 +29,10 @@ export function DirectFire() {
         textAlign: 'center', borderRight: 'solid 1px black',
         padding: 4,
       }}>
-        <Select of={[state.direct.attacker, 'TQ']} values={tq}/>
-        <Togglable of={[state.direct.attacker, 'overwatch', 'yes']}><Overwatch/></Togglable>
-        <Select of={[state.direct.attacker, 'moved']} values={moved}/>
-        <Select of={[state.direct.attacker, 'suppression']} values={suppression}/>
+        <Select of={[state.direct.drm, 'attacker_TQ']} values={tq}/>
+        <Togglable of={[state.direct.drm, 'attacker_overwatch', 'yes']}><Overwatch/></Togglable>
+        <Select of={[state.direct.drm, 'attacker_moved']} values={moved}/>
+        <Select of={[state.direct.drm, 'attacker_suppression']} values={suppression}/>
       </div>
       <div style={{
         borderRight: 'solid 1px black',
@@ -42,16 +42,16 @@ export function DirectFire() {
         minWidth: 100,
         padding: 4
       }}>
-        <Togglable of={[state.direct.between, 'sameWoodsUrban', 'yes']}>
+        <Togglable of={[state.direct.drm, 'between_sameWoodsUrban', 'yes']}>
           <SameWoodsUrban/>
         </Togglable>
-        <Select of={[state.direct.between, 'losThrough']} values={losThrough}/>
-        <Togglable of={[state.direct.between, 'lessThen250m', 'yes']}><LessThen250m/></Togglable>
+        <Select of={[state.direct.drm, 'between_losThrough']} values={losThrough}/>
+        <Togglable of={[state.direct.drm, 'between_lessThen250m', 'yes']}><LessThen250m/></Togglable>
       </div>
       <div style={{textAlign: 'center', padding: 4}}>
-        <Select of={[state.direct.defender, 'targetMarker']} values={targetMarker}/>
-        <Select of={[state.direct.defender, 'footInTerrain']} values={footInTerrain}/>
-        <Select of={[state.direct.defender, 'shellScrapes']} values={shellScrapesSvg}/>
+        <Select of={[state.direct.drm, 'defender_targetMarker']} values={targetMarker}/>
+        <Select of={[state.direct.drm, 'defender_footInTerrain']} values={footInTerrain}/>
+        <Select of={[state.direct.drm, 'defender_shellScrapes']} values={shellScrapesSvg}/>
       </div>
     </div>
     <div style={{display: 'flex', flexDirection: 'column', gap: 4}}>
