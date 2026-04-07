@@ -9,7 +9,7 @@ export type DRMDef<T extends { drm: DRMState }> = {
     [value in Exclude<T['drm'][key], undefined>]: number
   }
 } & {
-  postprocess?(result: DRMRow[], state: T): DRMRow[] | undefined
+  postprocess?(result: DRMRow<Exclude<keyof T['drm'], number | symbol>>[], state: T): DRMRow[] | undefined
   preprocess?(state: T): T | undefined
 }
 export type SubState = { drm: DRMState, attacker: { firetype: string | undefined } }
@@ -28,7 +28,7 @@ export function calculateDRM<T extends { drm: DRMState }>(state: T, drm: DRMDef<
     }),
   );
 
-  const reasons = drm.postprocess?.(allReasons, state) ?? allReasons;
+  const reasons = drm.postprocess?.(allReasons as any, state) ?? allReasons;
 
   return {
     value: R.pipe(

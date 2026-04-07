@@ -54,7 +54,7 @@ export const directDRM: DRMDef<State['direct']> = {
   },
   postprocess(result, state) {
     result = result.filter(r => r.reason !== 'between_lessThen250m')
-    result = result.filter(r => r.reason !== 'attacker.suppression')
+    result = result.filter(r => r.reason !== 'attacker_suppression')
     if (state.drm.between_lessThen250m && state.drm.between_losThrough) { // **
       result = result.filter(r => r.reason !== 'between_losThrough')
     }

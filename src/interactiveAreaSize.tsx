@@ -1,1 +1,1 @@
-export const interactiveAreaSize = '15mm';
+export const interactiveAreaSize = '12mm';

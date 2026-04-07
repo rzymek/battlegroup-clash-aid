@@ -35,16 +35,20 @@ export const indirectDRM: DRMDef<State['indirect']> = {
     recce: 1,
     fst: 3,
   },
-  postprocess
-  (result, state) {
+  postprocess(result, state) {
     if (state.attacker.firetype === 'FPV' && state.drm.target_moved) { // **
-      result = result.filter(it => it.reason !== 'drm.target_moved')
+      result = result.filter(it => it.reason !== 'target_moved')
     }
     if (state.attacker.firetype === '152/155mm') { // *
       const woods: State['indirect']['drm']['target_footInTerrain'][] = ['lightWood', "denseWood"];
       if (woods.includes(state.drm.target_footInTerrain)) {
-        result = result.filter(it => it.reason !== 'target.footInTerrain')
+        result = result.filter(it => it.reason !== 'target_footInTerrain')
       }
+    } else {
+      console.log('1',result);
+      result = result.filter(it =>
+        it.reason !== 'ew_triangulation' && it.reason !== 'ew_interference')
+      console.log('2',result);
     }
     return result;
   }
