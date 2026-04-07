@@ -36,12 +36,12 @@ export const indirectDRM: DRMDef<State['indirect']> = {
     fst: 3,
   },
   fpv_jamming: {
-    1: 1,
-    2: 2,
-    3: 3,
-    4: 4,
-    5: 5,
-    6: 6,
+    1: -1,
+    2: -2,
+    3: -3,
+    4: -4,
+    5: -5,
+    6: -6,
   },
   postprocess(result, state) {
     if (state.attacker.firetype === 'FPV' && state.drm.target_moved) { // **

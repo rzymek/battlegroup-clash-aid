@@ -10,5 +10,6 @@ export const reasonLabels: LabelsFor<typeof indirectDRM> = {
   target_marker: 'Value of played Target marker',
   target_moved: 'Target has Moved marker**',
   target_shellScrapes: 'Target has Digging / Shell Scrape marker',
-  target_tracked: 'Target is Tracked FE Type'
+  target_tracked: 'Target is Tracked FE Type',
+  fpv_jamming: 'FPV jamming: Opponent FPV attack: Roll 1D6. Apply that # as a -DRM on the result. 4B',
 };
