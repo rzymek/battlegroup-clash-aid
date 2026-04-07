@@ -1,18 +1,15 @@
 import {calculateResult} from "./calculateResult.tsx";
+import {state} from "../state/state.tsx";
 
 export function AssaultResult() {
-  const result = calculateResult();
-  const info = <>
-    <i>(ratio: {result.rawRatio} - <b>"{result.ratio}"</b>, DRM: {result.drm.value}, modified dice  roll: {result.modifierDiceRoll})</i></>;
-  return <div style={{padding: 8, display: 'flex', flexDirection: 'column', gap: 6}}>
-    {result.losses ? <>
-        <div>Losses:
-            Attacker: <b>{result.losses.attacker}</b>
-          {' '} Defender: <b>{result.losses.defender}</b>
-        </div>
-        <div>Pull Back: <b>{result.losses.pullback}</b>
-          {' '}{info}
-        </div>
-    </> : info}
+  const result = calculateResult(state.roll2d6);
+  return <div style={{padding: 8, display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'center', fontSize: '7mm'}}>
+    <div><i>Ratio: <b>{result.ratio}</b> ({result.rawRatio}), DRM: <b>{result.drm.value}</b></i></div>
+    {'result' in result &&
+        <div>
+            Attacker: <b>{result.result.attacker}</b>,
+          {' '} Defender: <b>{result.result.defender}</b>,
+          {' '} Pull Back: <b style={{textTransform:'capitalise'}}>{result.result.pullback}</b>
+        </div>}
   </div>
 }

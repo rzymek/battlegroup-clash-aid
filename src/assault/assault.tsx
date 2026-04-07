@@ -18,6 +18,10 @@ import {LabelsFor} from "../calculateDRM.tsx";
 import {DRMExplained} from "../DRMExplained.tsx";
 import {AssaultResult} from "./assaultResult.tsx";
 import {suppression} from "../suppression.tsx";
+import {result2d6style} from "./result2d6style.tsx";
+import {ProbabilityBar} from "./probabilityBar.tsx";
+import {hitsColors} from "./hitsColors.tsx";
+import {pullbackColors} from "./pullbackColors.tsx";
 
 const reasonLabels: LabelsFor<typeof assaultDRM> = {
 // "TQ difference between Attacker Foot and Defender Foot*",
@@ -73,8 +77,11 @@ export function Assault() {
       </div>
     </div>
     <div style={{display: 'flex', flexDirection: 'column', gap: 4}}>
-      <SelectionBar of={[state, 'roll2d6']} values={roll2d6}/>
+      <SelectionBar of={[state, 'roll2d6']} values={roll2d6} styles={result2d6style()}/>
       <AssaultResult/>
+      <ProbabilityBar type='attacker' colors={hitsColors} reverse/>
+      <ProbabilityBar type='pullback' colors={pullbackColors}/>
+      <ProbabilityBar type='defender' colors={hitsColors}/>
       <DRMExplained drm={assaultDRM} state={state.assault} reasonLabels={reasonLabels}/>
     </div>
   </div>

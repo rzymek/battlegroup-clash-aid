@@ -1,6 +1,5 @@
 import {State, Suppression, TQ} from "../state/state.tsx";
 import {DRMDef, DRMRow} from "../calculateDRM.tsx";
-import {directDRM} from "../direct/DRM.tsx";
 
 export const assaultDRM: DRMDef<State['assault']> = {
   defender_reorg: {

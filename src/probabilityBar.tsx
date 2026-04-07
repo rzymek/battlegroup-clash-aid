@@ -22,7 +22,7 @@ export function ProbabilityBar<T extends SubState>(props: {
     {resultValues.map(result =>
       <div style={{
         overflow: 'hidden',
-        background: resultColors[result],
+        backgroundColor: resultColors[result],
         height: '10mm',
         width: resultProbability[result],
         display: 'flex',

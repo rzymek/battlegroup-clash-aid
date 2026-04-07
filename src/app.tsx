@@ -8,10 +8,10 @@ import {Assault} from "./assault/assault.tsx";
 
 export function App() {
   return (
-    <div>
+    <div style={{margin: 4, marginBottom: 16}}>
       <SelectionBar of={[state, 'combatTypes']} values={combatTypes} required/>
       <Router/>
-      <pre>{JSON.stringify(state, null, 2)}</pre>
+      {/*<pre>{JSON.stringify(state, null, 2)}</pre>*/}
     </div>
   )
 }
