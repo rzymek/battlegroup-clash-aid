@@ -2,7 +2,7 @@ import './app.css'
 import {state} from "./state/state.tsx";
 import {SelectionBar} from "./SelectionBar.tsx";
 import {combatTypes} from "./state/combatTypes.tsx";
-import {DirectFire} from "./directFire.tsx";
+import {DirectFire} from "./direct/directFire.tsx";
 import {IndirectFire} from "./indirect/indirectFire.tsx";
 import {Assault} from "./assault/assault.tsx";
 
