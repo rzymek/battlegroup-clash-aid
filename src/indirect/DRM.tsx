@@ -2,6 +2,12 @@ import {State} from "../state/state.tsx";
 import {DRMDef} from "../calculateDRM.tsx";
 
 export const indirectDRM: DRMDef<State['indirect']> = {
+  ew_interference: {
+    yes: -2,
+  },
+  ew_triangulation: {
+    yes: +2,
+  },
   target_marker: {
     1: +1,
     2: +2,

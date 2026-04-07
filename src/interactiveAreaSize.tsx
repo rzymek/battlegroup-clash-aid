@@ -1,0 +1,1 @@
+export const interactiveAreaSize = '15mm';

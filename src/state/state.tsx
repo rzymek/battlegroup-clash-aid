@@ -5,15 +5,16 @@ import {combatTypes} from "./combatTypes.tsx";
 
 const yesNo = undefined as undefined | 'yes';
 
-export const tq = [6, 5, 4, 3] as const;
+export const tq = [6, 5, 4] as const;
 export type TQ = typeof tq[number];
+export type Suppression = 'suppressed' | 'disrupted';
 
 const initialState = {
   combatTypes: 'direct' as typeof combatTypes[number],
   roll2d6: undefined as typeof undefined | number,
   direct: {
     drm: {
-      attacker_suppression: undefined as undefined | 'suppressed' | 'disrupted',
+      attacker_suppression: undefined as undefined | Suppression,
       attacker_TQ: undefined as undefined | TQ,
       attacker_overwatch: yesNo,
       attacker_moved: undefined as undefined | 'nato' | 'russia',
@@ -30,6 +31,8 @@ const initialState = {
   },
   indirect: {
     drm: {
+      ew_triangulation: yesNo,
+      ew_interference: yesNo,
       losSupport_uas: yesNo,
       losSupport_other: undefined as undefined | IndirectLosToTargetSupport,
       target_marker: undefined as undefined | 1 | 2,
@@ -46,10 +49,12 @@ const initialState = {
     attacker: {
       TQ: undefined as undefined | TQ,
       firepower: [] as number[],
+      suppression: undefined as undefined | 'suppressed' | 'disrupted',
     },
     defender: {
       TQ: undefined as undefined | TQ,
       firepower: [] as number[],
+      suppression: undefined as undefined | 'suppressed' | 'disrupted',
     },
     drm: {
       attacker_footAndTrackPresent: yesNo,

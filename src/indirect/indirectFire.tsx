@@ -6,9 +6,11 @@ import UAS from "../svg/uas.svg?react";
 import moved from "../svg/moved.png";
 import fst from "../svg/fst.png";
 import recce from "../svg/recce.png";
+import triangulation from "../svg/triangulation.png";
+import interference from "../svg/interference.png";
 import Tracked from "../svg/tracked.svg?react";
 import {ComponentType} from "preact";
-import {imgComp} from "../imgComp.tsx";
+import {Img, imgComp} from "../imgComp.tsx";
 import {allTerrain} from "../footInTerrain.tsx";
 import {shellScrapesSvg} from "../shellScrapesSvg.tsx";
 import {SelectionBar} from "../SelectionBar.tsx";
@@ -32,6 +34,8 @@ export function IndirectFire() {
       <div style={{textAlign: 'center', padding: 4, borderRight: 'solid 1px black',}}>
         <Select of={[state.indirect.drm, 'losSupport_other']} values={losSupport}/>
         <Togglable of={[state.indirect.drm, 'losSupport_uas', 'yes']}><UAS/></Togglable>
+        <Togglable of={[state.indirect.drm, 'ew_triangulation', 'yes']}><Img src={triangulation}/></Togglable>
+        <Togglable of={[state.indirect.drm, 'ew_interference', 'yes']}><Img src={interference}/></Togglable>
       </div>
       <div style={{textAlign: 'center', padding: 4,}}>
         <Select of={[state.indirect.drm, 'target_marker']} values={targetMarker}/>

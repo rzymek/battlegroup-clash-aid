@@ -17,6 +17,7 @@ import {assaultDRM} from "./DRM.ts";
 import {LabelsFor} from "../calculateDRM.tsx";
 import {DRMExplained} from "../DRMExplained.tsx";
 import {AssaultResult} from "./assaultResult.tsx";
+import {suppression} from "../suppression.tsx";
 
 const reasonLabels: LabelsFor<typeof assaultDRM> = {
 // "TQ difference between Attacker Foot and Defender Foot*",
@@ -46,6 +47,7 @@ export function Assault() {
       }}>
         <Select of={[state.assault.drm, 'attacker_hq']} values={hqSvg}/>
         <Select of={[state.assault.attacker, 'TQ']} values={tq}/>
+        <Select of={[state.assault.attacker, 'suppression']} values={suppression}/>
         <Togglable of={[state.assault.drm, 'attacker_footAndTrackPresent', 'yes']}><FootAndTrackedPresent/></Togglable>
         <Togglable of={[state.assault.drm, 'location_smoke', 'yes']}><Img src={smoke}/></Togglable>
         <Togglable of={[state.assault.drm, 'location_bridge', 'yes']}><Img src={bridge}/></Togglable>
@@ -62,6 +64,7 @@ export function Assault() {
       }}>
         <Select of={[state.assault.drm, 'defender_hq']} values={hqSvg}/>
         <Select of={[state.assault.defender, 'TQ']} values={tq}/>
+        <Select of={[state.assault.defender, 'suppression']} values={suppression}/>
         <Togglable of={[state.assault.drm, 'defender_footAndTrackPresent', 'yes']}><FootAndTrackedPresent/></Togglable>
         <Togglable of={[state.assault.drm, 'defender_reorg', 'yes']}><Img src={reorg}/></Togglable>
         <Togglable of={[state.assault.drm, 'defender_urbanDenseElevated', 'yes']}><Img
