@@ -8,6 +8,7 @@ const yesNo = undefined as undefined | 'yes';
 export const tq = [6, 5, 4] as const;
 export type TQ = typeof tq[number];
 export type Suppression = 'suppressed' | 'disrupted';
+export type D6 = 1|2|3|4|5|6;
 
 const initialState = {
   combatTypes: 'direct' as typeof combatTypes[number],
@@ -40,6 +41,7 @@ const initialState = {
       target_moved: yesNo,
       target_shellScrapes: undefined as undefined | 'digging' | 'shellScrapes',
       target_tracked: yesNo,
+      fpv_jamming: undefined as undefined | D6,
     },
     attacker: {
       firetype: undefined as undefined | IndirectFireType,

@@ -11,7 +11,6 @@ import fp10 from '../svg/assault/10.svg';
 import backspace from '../svg/assault/backspace.svg';
 import * as R from "remeda";
 import {update} from "../state/update.ts";
-import {state} from "../state/state.tsx";
 
 const fpImg: Record<number, string> = {
   1: fp1,
@@ -25,7 +24,7 @@ const fpImg: Record<number, string> = {
   10: fp10,
 }
 
-function FirepowerKeyboard(props: { field: number[], color:string }) {
+export function FirepowerKeyboard(props: { field: number[], color: string, borderLeft?: string }) {
   return <div style={{
     display: 'flex',
     gap: 3,
@@ -33,6 +32,7 @@ function FirepowerKeyboard(props: { field: number[], color:string }) {
     padding: 8,
     justifyContent: 'center',
     alignSelf: 'flex-start',
+    borderLeft: props.borderLeft,
   }}>
     {R.pipe(
       fpImg,
@@ -44,28 +44,15 @@ function FirepowerKeyboard(props: { field: number[], color:string }) {
   </div>
 }
 
-function FirepowerValue(props: { field: number[],color:string}) {
+export function FirepowerValue(props: { field: number[], color: string }) {
   const sum = R.pipe(props.field, R.sum());
   if (sum === 0) {
     return <div/>;
   }
-  return <div style={{padding: 8, textAlign:'center'}}>
+  return <div style={{padding: 8, textAlign: 'center'}}>
     {props.field.map((item) =>
-    <Img src={fpImg[item]} style={{height: '5mm', marginRight: 3, backgroundColor: props.color}}/>
-  )}
-  </div>
-
-}
-
-export function AssaultFirepower() {
-  return <div>
-    <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr'}}>
-      <FirepowerKeyboard field={state.assault.attacker.firepower} color='lightpink'/>
-      <FirepowerKeyboard field={state.assault.defender.firepower} color='lightblue'/>
-      <FirepowerValue field={state.assault.attacker.firepower} color='lightpink'/>
-      <FirepowerValue field={state.assault.defender.firepower} color='lightblue'/>
-    </div>
+      <Img src={fpImg[item]} style={{height: '5mm', marginRight: 3, backgroundColor: props.color}}/>
+    )}
   </div>
 }
-
 

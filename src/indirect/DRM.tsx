@@ -35,6 +35,14 @@ export const indirectDRM: DRMDef<State['indirect']> = {
     recce: 1,
     fst: 3,
   },
+  fpv_jamming: {
+    1: 1,
+    2: 2,
+    3: 3,
+    4: 4,
+    5: 5,
+    6: 6,
+  },
   postprocess(result, state) {
     if (state.attacker.firetype === 'FPV' && state.drm.target_moved) { // **
       result = result.filter(it => it.reason !== 'target_moved')
@@ -45,10 +53,11 @@ export const indirectDRM: DRMDef<State['indirect']> = {
         result = result.filter(it => it.reason !== 'target_footInTerrain')
       }
     } else {
-      console.log('1',result);
       result = result.filter(it =>
         it.reason !== 'ew_triangulation' && it.reason !== 'ew_interference')
-      console.log('2',result);
+    }
+    if (state.attacker.firetype !== 'FPV') {
+      result = result.filter(it => it.reason !== 'fpv_jamming')
     }
     return result;
   }

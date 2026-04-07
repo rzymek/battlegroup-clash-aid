@@ -10,7 +10,7 @@ import urbanWoodElevated from "../svg/urban-wood-elevated.png";
 import {shellScrapesSvg} from "../shellScrapesSvg.tsx";
 import {SelectionBar} from "../SelectionBar.tsx";
 import {roll2d6} from "../state/roll2d6.tsx";
-import {AssaultFirepower} from "./assaultFirepower.tsx";
+import {FirepowerKeyboard, FirepowerValue} from "./assaultFirepower.tsx";
 import {hqSvg} from "./hqSvg.tsx";
 import {tq} from "../tq.tsx";
 import {assaultDRM} from "./DRM.ts";
@@ -38,8 +38,12 @@ const reasonLabels: LabelsFor<typeof assaultDRM> = {
 
 export function Assault() {
   return <div>
-    <AssaultFirepower/>
     <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 3}}>
+      <FirepowerKeyboard field={state.assault.attacker.firepower} color='lightblue'/>
+      <FirepowerKeyboard field={state.assault.defender.firepower} color='lightpink' borderLeft='solid 1px black'/>
+      <FirepowerValue field={state.assault.attacker.firepower} color='lightblue'/>
+      <FirepowerValue field={state.assault.defender.firepower} color='lightpink' />
+
       <div style={{
         textAlign: 'center',
         padding: 4,

@@ -22,6 +22,7 @@ import {Result} from "../result.tsx";
 import {DRMExplained} from "../DRMExplained.tsx";
 import {reasonLabels} from "./ReasonLabels.tsx";
 import {result2d6style} from "../result2d6style.tsx";
+import {fpvJammingSvg} from "./fpvJammingSvg.tsx";
 
 const losSupport: Record<IndirectLosToTargetSupport, ComponentType> = {
   fst: imgComp(fst),
@@ -29,13 +30,15 @@ const losSupport: Record<IndirectLosToTargetSupport, ComponentType> = {
 }
 
 export function IndirectFire() {
+
   return <div>
-    <div style={{display: 'grid', gridTemplateColumns: '1fr 4fr', gap: 3}}>
+    <div style={{display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 3}}>
       <div style={{textAlign: 'center', padding: 4, borderRight: 'solid 1px black',}}>
         <Select of={[state.indirect.drm, 'losSupport_other']} values={losSupport}/>
         <Togglable of={[state.indirect.drm, 'losSupport_uas', 'yes']}><UAS/></Togglable>
         <Togglable of={[state.indirect.drm, 'ew_triangulation', 'yes']}><Img src={triangulation}/></Togglable>
         <Togglable of={[state.indirect.drm, 'ew_interference', 'yes']}><Img src={interference}/></Togglable>
+        <Select of={[state.indirect.drm, 'fpv_jamming']} values={fpvJammingSvg}/>
       </div>
       <div style={{textAlign: 'center', padding: 4,}}>
         <Select of={[state.indirect.drm, 'target_marker']} values={targetMarker}/>
