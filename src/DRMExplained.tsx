@@ -6,7 +6,7 @@ export function DRMExplained<T extends { drm: DRMState }>(props: {
   reasonLabels: LabelsFor<DRMDef<T>>
 }) {
   const drm = calculateDRM(props.state, props.drm);
-  if(drm.reasons.length === 0) return null;
+  if (drm.reasons.length === 0) return null;
   return <table>
     <thead>
     <tr>
@@ -16,7 +16,10 @@ export function DRMExplained<T extends { drm: DRMState }>(props: {
     </thead>
     <tbody>
     {drm.reasons.map((it, idx) => <tr key={idx}>
-      <td>{props.reasonLabels[it.reason] ?? it.reason}</td>
+      <td>
+        <div>{props.reasonLabels[it.reason] ?? it.reason}</div>
+        <div>{it.note}</div>
+      </td>
       <th>{it.modifier}</th>
     </tr>)}
     </tbody>

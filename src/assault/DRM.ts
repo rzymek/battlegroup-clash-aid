@@ -1,5 +1,5 @@
 import {State, Suppression, TQ} from "../state/state.tsx";
-import {DRMDef, DRMRow} from "../calculateDRM.tsx";
+import {DRMDef, Reason} from "../calculateDRM.tsx";
 
 export const assaultDRM: DRMDef<State['assault']> = {
   defender_reorg: {
@@ -34,11 +34,11 @@ export const assaultDRM: DRMDef<State['assault']> = {
   location_bridge: {
     yes: -3,
   },
-  postprocess(result, state): DRMRow[] | undefined {
+  postprocess(result, state) {
     const tqDiff = tq(state.attacker) - tq(state.defender);
     if (isFinite(tqDiff)) {
       return [...result, {
-        reason: `TQ difference between Attacker Foot and Defender Foot*`,
+        reason: `TQ difference between Attacker Foot and Defender Foot*` as Reason<State['assault']>,
         modifier: tqDiff
       }]
     }

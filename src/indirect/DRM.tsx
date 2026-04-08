@@ -49,15 +49,20 @@ export const indirectDRM: DRMDef<State['indirect']> = {
     }
     if (state.attacker.firetype === '152/155mm') { // *
       const woods: State['indirect']['drm']['target_footInTerrain'][] = ['lightWood', "denseWood"];
-      if (woods.includes(state.drm.target_footInTerrain)) {
-        result = result.filter(it => it.reason !== 'target_footInTerrain')
+      const isInWoods = woods.includes(state.drm.target_footInTerrain);
+      if (isInWoods && state.drm.target_shellScrapes === 'shellScrapes') {
+        result = result.map(it => it.reason === 'target_footInTerrain' ? ({
+          ...it, modifier: 0,
+          note: `* This DRM does not apply against Artillery unless the Foot FE has a Shell Scrape marker.`
+        } as const) : it)
       }
     } else {
       result = result.filter(it =>
         it.reason !== 'ew_triangulation' && it.reason !== 'ew_interference')
     }
     if (state.attacker.firetype !== 'FPV') {
-      result = result.filter(it => it.reason !== 'fpv_jamming')
+      result = result.map(it => it.reason === 'fpv_jamming' ?
+        ({...it, modifier: 0, note: '**FPV ignores this penalty.'}) : it)
     }
     return result;
   }
