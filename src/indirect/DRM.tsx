@@ -50,7 +50,7 @@ export const indirectDRM: DRMDef<State['indirect']> = {
     if (state.attacker.firetype === '152/155mm') { // *
       const woods: State['indirect']['drm']['target_footInTerrain'][] = ['lightWood', "denseWood"];
       const isInWoods = woods.includes(state.drm.target_footInTerrain);
-      if (isInWoods && state.drm.target_shellScrapes === 'shellScrapes') {
+      if (isInWoods && state.drm.target_shellScrapes !== 'shellScrapes') {
         result = result.map(it => it.reason === 'target_footInTerrain' ? ({
           ...it, modifier: 0,
           note: `* This DRM does not apply against Artillery unless the Foot FE has a Shell Scrape marker.`
