@@ -94,7 +94,7 @@ function applyLayer(
   merge: Merge,
 ) {
   for (const polygon of layer.polygons) {
-    // Horizontal scanlines: correct for wide polygons and thin vertical/diagonal features.
+    // Horizontal scanlines: fills wide polygons and thin vertical/diagonal features.
     for (let r = 0; r < rows; r++) {
       const y = viewBox.y + (r + 0.5) * cellH;
       const xs = xIntersections(polygon, y);
@@ -104,7 +104,7 @@ function applyLayer(
         for (let c = c0; c <= c1; c++) costs[r * cols + c] = merge(costs[r * cols + c], layer.cost);
       }
     }
-    // Vertical scanlines: catches thin nearly-horizontal features (roads running left/right).
+    // Vertical scanlines: catches thin nearly-horizontal features.
     for (let c = 0; c < cols; c++) {
       const x = viewBox.x + (c + 0.5) * cellW;
       const ys = yIntersections(polygon, x);
@@ -113,6 +113,14 @@ function applyLayer(
         const r1 = Math.min(rows - 1, Math.floor((ys[i + 1] - viewBox.y) / cellH));
         for (let r = r0; r <= r1; r++) costs[r * cols + c] = merge(costs[r * cols + c], layer.cost);
       }
+    }
+    // DDA edge traversal: guarantees every cell a polygon edge touches is marked,
+    // catching thin diagonal segments that axis-aligned scanlines miss.
+    for (let i = 0; i < polygon.length; i++) {
+      ddaEdge(
+        polygon[i], polygon[(i + 1) % polygon.length],
+        viewBox, cellW, cellH, rows, cols, costs, layer.cost, merge,
+      );
     }
   }
 }
@@ -128,6 +136,33 @@ function xIntersections(polygon: Point[], y: number): number[] {
     }
   }
   return xs.sort((a, b) => a - b);
+}
+
+/**
+ * DDA grid traversal: visits every cell the segment p0→p1 passes through.
+ * Step count uses Chebyshev distance + 1, which guarantees the per-axis
+ * step is always < 1 cell so no cell can be skipped.
+ */
+function ddaEdge(
+  p0: Point, p1: Point,
+  vb: ViewBox, cellW: number, cellH: number,
+  rows: number, cols: number,
+  costs: Float32Array, cost: number, merge: Merge,
+) {
+  const gc0 = (p0.x - vb.x) / cellW;
+  const gr0 = (p0.y - vb.y) / cellH;
+  const gc1 = (p1.x - vb.x) / cellW;
+  const gr1 = (p1.y - vb.y) / cellH;
+  const dc = gc1 - gc0;
+  const dr = gr1 - gr0;
+  const n = Math.ceil(Math.max(Math.abs(dc), Math.abs(dr))) + 1;
+  for (let j = 0; j <= n; j++) {
+    const t = j / n;
+    const c = Math.floor(gc0 + t * dc);
+    const r = Math.floor(gr0 + t * dr);
+    if (c >= 0 && c < cols && r >= 0 && r < rows)
+      costs[r * cols + c] = merge(costs[r * cols + c], cost);
+  }
 }
 
 /** Y-coordinates where polygon edges cross the vertical line at x (sorted ascending). */

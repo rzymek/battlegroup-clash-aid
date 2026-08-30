@@ -10,6 +10,8 @@ const MOVEMENT_RANGE = 20;
 // Movement cost per inkscape layer label (MP per grid unit × √2 for diagonals).
 // Adjust as rules dictate.
 const LAYER_COSTS: Record<string, number> = {
+  'light urban': 2,
+  urban: 4,
   lightWood: 2,
   denseWood: 3,
   river: Infinity,
@@ -61,8 +63,9 @@ function getGrid(): TerrainGrid {
 const COST_COLORS: Record<number, [r: number, g: number, b: number, a: number]> = {
   0.25: [255, 140, 0, 220], // major road — orange
   0.5: [220, 180, 60, 200], // road — yellow
-  2: [0, 187, 15, 140],     // lightWood — bright green
+  2: [0, 187, 15, 140],     // lightWood / light urban — bright green
   3: [0, 69, 6, 180],       // denseWood — dark green
+  4: [110, 90, 70, 200],    // urban — brown-gray
   [Infinity]: [30, 80, 220, 200], // river — blue, impassable
 };
 
@@ -89,8 +92,7 @@ function getGridDataUrl(): string {
   return cachedGridDataUrl;
 }
 
-function buildRangeDataUrl(startPt: Point, grid: TerrainGrid): string {
-  const dist = findReachableCells(startPt, grid, MOVEMENT_RANGE);
+function buildRangeDataUrl(dist: Float32Array, grid: TerrainGrid): string {
   const canvas = document.createElement('canvas');
   canvas.width = grid.cols;
   canvas.height = grid.rows;
@@ -126,6 +128,7 @@ export function MovementMap() {
   const dragRef = useRef<{ cx: number; cy: number; snap: typeof INITIAL_VB } | null>(null);
   const movedRef = useRef(false);
   const clickHandlerRef = useRef<(e: MouseEvent) => void>(() => {});
+  const rangeDistRef = useRef<Float32Array | null>(null);
 
   useEffect(() => {
     if (showGrid && !gridDataUrl) setGridDataUrl(getGridDataUrl());
@@ -133,8 +136,12 @@ export function MovementMap() {
 
   useEffect(() => {
     if (startPt && !endPt) {
-      setRangeDataUrl(buildRangeDataUrl(startPt, getGrid()));
+      const grid = getGrid();
+      const dist = findReachableCells(startPt, grid, MOVEMENT_RANGE);
+      rangeDistRef.current = dist;
+      setRangeDataUrl(buildRangeDataUrl(dist, grid));
     } else {
+      rangeDistRef.current = null;
       setRangeDataUrl(null);
     }
   }, [startPt, endPt]);
@@ -149,8 +156,18 @@ export function MovementMap() {
         setEndPt(null);
         setResult(null);
       } else {
+        const grid = getGrid();
+        const { rows, cols, viewBox } = grid;
+        const row = Math.max(0, Math.min(rows - 1, Math.floor((pt.y - viewBox.y) / viewBox.height * rows)));
+        const col = Math.max(0, Math.min(cols - 1, Math.floor((pt.x - viewBox.x) / viewBox.width * cols)));
+        if (rangeDistRef.current && rangeDistRef.current[row * cols + col] > MOVEMENT_RANGE) {
+          setStartPt(pt);
+          setEndPt(null);
+          setResult(null);
+          return;
+        }
         setEndPt(pt);
-        setResult(findPath(startPt, pt, getGrid()));
+        setResult(findPath(startPt, pt, grid));
       }
     };
   }, [startPt, endPt]);
