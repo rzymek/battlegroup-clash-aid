@@ -1,1 +1,1 @@
-export const combatTypes = ['direct', 'indirect', 'assault'] as const;
+export const combatTypes = ['direct', 'indirect', 'assault', 'movement'] as const;

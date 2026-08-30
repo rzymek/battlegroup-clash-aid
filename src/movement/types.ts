@@ -1,0 +1,32 @@
+export interface Point {
+  x: number;
+  y: number;
+}
+
+export interface ViewBox {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+export interface TerrainLayer {
+  label: string;
+  cost: number;
+  /** Polygon approximations of paths in this layer, in SVG viewBox coordinate space. */
+  polygons: Point[][];
+}
+
+/** Pre-built raster grid of movement costs. Build once, reuse for many `findPath` calls. */
+export interface TerrainGrid {
+  costs: Float32Array;
+  rows: number;
+  cols: number;
+  viewBox: ViewBox;
+}
+
+export interface PathResult {
+  /** Waypoints in SVG viewBox coordinate units. */
+  points: Point[];
+  totalCost: number;
+}

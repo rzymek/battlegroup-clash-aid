@@ -5,6 +5,7 @@ import {combatTypes} from "./state/combatTypes.tsx";
 import {DirectFire} from "./direct/directFire.tsx";
 import {IndirectFire} from "./indirect/indirectFire.tsx";
 import {Assault} from "./assault/assault.tsx";
+import {MovementMap} from "./movement/MovementMap.tsx";
 
 export function App() {
   return (
@@ -24,5 +25,7 @@ function Router() {
       return <IndirectFire/>
     case "assault":
       return <Assault/>
+    case "movement":
+      return <MovementMap/>
   }
 }
