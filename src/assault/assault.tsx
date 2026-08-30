@@ -22,6 +22,7 @@ import {result2d6style} from "./result2d6style.tsx";
 import {ProbabilityBar} from "./probabilityBar.tsx";
 import {hitsColors} from "./hitsColors.tsx";
 import {pullbackColors} from "./pullbackColors.tsx";
+import {CSSProperties} from "preact";
 
 const reasonLabels: LabelsFor<typeof assaultDRM> = {
 // "TQ difference between Attacker Foot and Defender Foot*",
@@ -35,6 +36,11 @@ const reasonLabels: LabelsFor<typeof assaultDRM> = {
   location_bridge: "Smoke at Assault Location",
   location_smoke: "Defender is across a Bridge",
 };
+
+const statLabelStyle:CSSProperties = {
+  fontSize: 12,
+  marginBottom: -2,
+}
 
 export function Assault() {
   return <div>
@@ -83,9 +89,12 @@ export function Assault() {
     <div style={{display: 'flex', flexDirection: 'column', gap: 4}}>
       <SelectionBar of={[state, 'roll2d6']} values={roll2d6} styles={result2d6style()}/>
       <AssaultResult/>
-      <ProbabilityBar type='attacker' colors={hitsColors} reverse/>
-      <ProbabilityBar type='pullback' colors={pullbackColors}/>
+      <div style={statLabelStyle}>Defender losses:</div>
       <ProbabilityBar type='defender' colors={hitsColors}/>
+      <div style={statLabelStyle}>Pull back:</div>
+      <ProbabilityBar type='pullback' colors={pullbackColors}/>
+      <div style={statLabelStyle}>Attacker losses:</div>
+      <ProbabilityBar type='attacker' colors={hitsColors} reverse/>
       <DRMExplained drm={assaultDRM} state={state.assault} reasonLabels={reasonLabels}/>
     </div>
   </div>
