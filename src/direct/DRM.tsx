@@ -9,6 +9,8 @@ export const directDRM: DRMDef<State['direct']> = {
     disrupted: -2,
   },
   attacker_TQ: {
+    2: -1,
+    3: -1,
     4: 0,
     5: +1,
     6: +2

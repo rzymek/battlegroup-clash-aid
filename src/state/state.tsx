@@ -16,7 +16,7 @@ const initialState = {
   direct: {
     drm: {
       attacker_suppression: undefined as undefined | Suppression,
-      attacker_TQ: undefined as undefined | TQ,
+      attacker_TQ: undefined as undefined | TQ | 3 | 2,
       attacker_overwatch: yesNo,
       attacker_moved: undefined as undefined | 'nato' | 'russia',
       between_sameWoodsUrban: yesNo,
