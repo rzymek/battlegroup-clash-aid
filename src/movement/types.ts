@@ -20,6 +20,8 @@ export interface TerrainLayer {
 /** Pre-built raster grid of movement costs. Build once, reuse for many `findPath` calls. */
 export interface TerrainGrid {
   costs: Float32Array;
+  terrainIndex: Uint8Array; // index into terrainNames; 0 = open/default
+  terrainNames: string[];   // terrain label for each index value
   rows: number;
   cols: number;
   viewBox: ViewBox;

@@ -4,19 +4,52 @@ import mapBJpg from '../../resources/maps/mapB.jpg';
 import { buildTerrainGrid } from './terrainGrid.ts';
 import { findPath, findReachableCells, screenToSvg } from './findPath.ts';
 import type { Point, PathResult, TerrainGrid } from './types.ts';
+import { getGridDataUrl, buildRangeDataUrl } from './gridRendering.ts';
 
 const MOVEMENT_RANGE = 20;
 
-// Movement cost per inkscape layer label (MP per grid unit × √2 for diagonals).
-// Adjust as rules dictate.
-const LAYER_COSTS: Record<string, number> = {
-  'light urban': 2,
-  urban: 4,
-  lightWood: 2,
-  denseWood: 3,
-  river: Infinity,
-  'major road': 0.25,
-  road: 0.5,
+type FeType = 'foot' | 'wheeled' | 'tracked';
+
+// Costs normalised so Open terrain = 1.0 for each type.
+// Formula: open_allowance / terrain_allowance (Player Aid 2 Movement Table).
+// Dense Wood is No-Go for Wheeled/Tracked except via road (not modelled here).
+const LAYER_COSTS: Record<FeType, Record<string, number>> = {
+  foot: {
+    // Open baseline: 750 m
+    road: 1.0,            // Minor Road: 750 m
+    'major road': 0.75,   // 1 000 m
+    lightWood: 1.5,       // 500 m
+    denseWood: 3.0,       // 250 m
+    'light urban': 1.0,   // 750 m
+    urban: 1.0,           // 750 m
+    'shallow hill': 1.5,  // 500 m
+    'steep hill': 3.0,    // 250 m
+    river: Infinity,
+  },
+  wheeled: {
+    // Open baseline: 1 500 m
+    road: 0.75,           // Minor Road: 2 000 m
+    'major road': 0.75,   // 2 000 m
+    lightWood: 1.5,       // 1 000 m
+    denseWood: Infinity,  // No-Go
+    'light urban': 0.75,  // 2 000 m
+    urban: 1.5,           // 1 000 m
+    'shallow hill': 3.0,  // 500 m
+    'steep hill': 6.0,    // 250 m
+    river: Infinity,
+  },
+  tracked: {
+    // Open baseline: 2 000 m
+    road: 1.0,            // Minor Road: 2 000 m
+    'major road': 1.0,    // 2 000 m
+    lightWood: 2.0,       // 1 000 m
+    denseWood: Infinity,  // No-Go
+    'light urban': 1.0,   // 2 000 m
+    urban: 2.0,           // 1 000 m
+    'shallow hill': 4.0,  // 500 m
+    'steep hill': 8.0,    // 250 m
+    river: Infinity,
+  },
 };
 
 const vbMatch = mapBSvgRaw.match(/viewBox="([^"]+)"/);
@@ -25,69 +58,19 @@ const INITIAL_VB = { x: vbX, y: vbY, w: vbW, h: vbH };
 
 // ── Lazy terrain grid + grid image (built once on first use) ─────────────────
 
-let cachedGrid: TerrainGrid | null = null;
-function getGrid(): TerrainGrid {
-  if (!cachedGrid) cachedGrid = buildTerrainGrid(mapBSvgRaw, LAYER_COSTS);
-  return cachedGrid;
-}
-
-// Colors per cost level, matched to SVG terrain fills.
-const COST_COLORS: Record<number, [r: number, g: number, b: number, a: number]> = {
-  0.25: [255, 140, 0, 220], // major road — orange
-  0.5: [220, 180, 60, 200], // road — yellow
-  2: [0, 187, 15, 140],     // lightWood / light urban — bright green
-  3: [0, 69, 6, 180],       // denseWood — dark green
-  4: [110, 90, 70, 200],    // urban — brown-gray
-  [Infinity]: [30, 80, 220, 200], // river — blue, impassable
-};
-
-function buildDataUrl(cols: number, rows: number, fill: (img: ImageData) => void): string {
-  const canvas = document.createElement('canvas');
-  canvas.width = cols;
-  canvas.height = rows;
-  const ctx = canvas.getContext('2d')!;
-  const img = ctx.createImageData(cols, rows);
-  fill(img);
-  ctx.putImageData(img, 0, 0);
-  return canvas.toDataURL();
-}
-
-let cachedGridDataUrl: string | null = null;
-function getGridDataUrl(): string {
-  if (cachedGridDataUrl) return cachedGridDataUrl;
-  const grid = getGrid();
-  cachedGridDataUrl = buildDataUrl(grid.cols, grid.rows, img => {
-    for (let i = 0; i < grid.costs.length; i++) {
-      const color = COST_COLORS[grid.costs[i]];
-      if (color) {
-        img.data[i * 4] = color[0];
-        img.data[i * 4 + 1] = color[1];
-        img.data[i * 4 + 2] = color[2];
-        img.data[i * 4 + 3] = color[3];
-      }
-    }
-  });
-  return cachedGridDataUrl;
-}
-
-function buildRangeDataUrl(dist: Float32Array, grid: TerrainGrid): string {
-  return buildDataUrl(grid.cols, grid.rows, img => {
-    for (let i = 0; i < dist.length; i++) {
-      if (dist[i] <= MOVEMENT_RANGE) {
-        const ratio = dist[i] / MOVEMENT_RANGE;
-        img.data[i * 4] = Math.round(ratio * 200);
-        img.data[i * 4 + 1] = 180;
-        img.data[i * 4 + 2] = 0;
-        img.data[i * 4 + 3] = 130;
-      }
-    }
-  });
+const gridCache = new Map<FeType, TerrainGrid>();
+function getGrid(feType: FeType): TerrainGrid {
+  if (!gridCache.has(feType)) {
+    gridCache.set(feType, buildTerrainGrid(mapBSvgRaw, LAYER_COSTS[feType]));
+  }
+  return gridCache.get(feType)!;
 }
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export function MovementMap() {
   const svgRef = useRef<SVGSVGElement>(null);
+  const [feType, setFeType] = useState<FeType>('tracked');
   const [startPt, setStartPt] = useState<Point | null>(null);
   const [endPt, setEndPt] = useState<Point | null>(null);
   const [result, setResult] = useState<PathResult | null>(null);
@@ -104,15 +87,15 @@ export function MovementMap() {
 
   useEffect(() => {
     if (startPt && !endPt) {
-      const grid = getGrid();
+      const grid = getGrid(feType);
       const dist = findReachableCells(startPt, grid, MOVEMENT_RANGE);
       rangeDistRef.current = dist;
-      setRangeDataUrl(buildRangeDataUrl(dist, grid));
+      setRangeDataUrl(buildRangeDataUrl(dist, grid, MOVEMENT_RANGE));
     } else {
       rangeDistRef.current = null;
       setRangeDataUrl(null);
     }
-  }, [startPt, endPt]);
+  }, [startPt, endPt, feType]);
 
   // Keep click logic up-to-date without stale closures in window handler.
   useEffect(() => {
@@ -124,7 +107,7 @@ export function MovementMap() {
         setEndPt(null);
         setResult(null);
       } else {
-        const grid = getGrid();
+        const grid = getGrid(feType);
         const { rows, cols, viewBox } = grid;
         const row = Math.max(0, Math.min(rows - 1, Math.floor((pt.y - viewBox.y) / viewBox.height * rows)));
         const col = Math.max(0, Math.min(cols - 1, Math.floor((pt.x - viewBox.x) / viewBox.width * cols)));
@@ -138,7 +121,7 @@ export function MovementMap() {
         setResult(findPath(startPt, pt, grid));
       }
     };
-  }, [startPt, endPt]);
+  }, [startPt, endPt, feType]);
 
   // Wheel zoom centered on cursor.
   useEffect(() => {
@@ -235,6 +218,16 @@ export function MovementMap() {
           <input type="checkbox" checked={showGrid} onChange={e => setShowGrid((e.target as HTMLInputElement).checked)} />
           Show grid
         </label>
+        <span style={{ fontSize: '0.9em', color: '#666' }}>FE type:</span>
+        {(['foot', 'wheeled', 'tracked'] as FeType[]).map(t => (
+          <button
+            key={t}
+            onClick={() => { setFeType(t); setEndPt(null); setResult(null); }}
+            style={{ fontWeight: feType === t ? 'bold' : 'normal', textDecoration: feType === t ? 'underline' : 'none' }}
+          >
+            {t.charAt(0).toUpperCase() + t.slice(1)}
+          </button>
+        ))}
         <span style={{ fontSize: '0.9em', color: '#444' }}>{status}</span>
       </div>
 
@@ -253,7 +246,7 @@ export function MovementMap() {
           {/* Rasterised cost grid */}
           {showGrid && (
             <image
-              href={getGridDataUrl()}
+              href={getGridDataUrl(getGrid(feType))}
               x={vbX} y={vbY}
               width={vbW} height={vbH}
               imageRendering="pixelated"
