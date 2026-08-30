@@ -26,9 +26,9 @@ export default defineConfig({
                 maximumFileSizeToCacheInBytes: 5242880,
             },
             manifest: {
-                name: "bcb",
-                short_name: "bcb",
-                description: "bcb",
+                name: "Battlegroup Clash Aid",
+                short_name: "BC Aid",
+                description: "Battlegroup Clash Aid",
                 theme_color: "#FFFFE0",
                 icons: [{
                     src: "pwa-64x64.png",
