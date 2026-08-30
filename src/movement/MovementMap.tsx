@@ -2,8 +2,10 @@ import { useState, useRef, useCallback, useEffect } from 'preact/hooks';
 import mapBSvgRaw from '../../resources/mapB.svg?raw';
 import mapBJpg from '../../resources/maps/mapB.jpg';
 import { buildTerrainGrid } from './terrainGrid.ts';
-import { findPath, screenToSvg } from './findPath.ts';
+import { findPath, findReachableCells, screenToSvg } from './findPath.ts';
 import type { Point, PathResult, TerrainGrid } from './types.ts';
+
+const MOVEMENT_RANGE = 20;
 
 // Movement cost per inkscape layer label (MP per grid unit × √2 for diagonals).
 // Adjust as rules dictate.
@@ -85,6 +87,26 @@ function getGridDataUrl(): string {
   return cachedGridDataUrl;
 }
 
+function buildRangeDataUrl(startPt: Point, grid: TerrainGrid): string {
+  const dist = findReachableCells(startPt, grid, MOVEMENT_RANGE);
+  const canvas = document.createElement('canvas');
+  canvas.width = grid.cols;
+  canvas.height = grid.rows;
+  const ctx = canvas.getContext('2d')!;
+  const img = ctx.createImageData(grid.cols, grid.rows);
+  for (let i = 0; i < dist.length; i++) {
+    if (dist[i] <= MOVEMENT_RANGE) {
+      const ratio = dist[i] / MOVEMENT_RANGE; // 0 at start, 1 at edge
+      img.data[i * 4 + 0] = Math.round(ratio * 200); // green → yellow-orange
+      img.data[i * 4 + 1] = 180;
+      img.data[i * 4 + 2] = 0;
+      img.data[i * 4 + 3] = 130;
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+  return canvas.toDataURL();
+}
+
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export function MovementMap() {
@@ -94,10 +116,19 @@ export function MovementMap() {
   const [result, setResult] = useState<PathResult | null>(null);
   const [showGrid, setShowGrid] = useState(false);
   const [gridDataUrl, setGridDataUrl] = useState<string | null>(null);
+  const [rangeDataUrl, setRangeDataUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (showGrid && !gridDataUrl) setGridDataUrl(getGridDataUrl());
   }, [showGrid, gridDataUrl]);
+
+  useEffect(() => {
+    if (startPt && !endPt) {
+      setRangeDataUrl(buildRangeDataUrl(startPt, getGrid()));
+    } else {
+      setRangeDataUrl(null);
+    }
+  }, [startPt, endPt]);
 
   const handleClick = useCallback((e: MouseEvent) => {
     if (!svgRef.current) return;
@@ -122,7 +153,7 @@ export function MovementMap() {
   const status = !startPt
     ? 'Click on the map to set the start point'
     : !endPt
-      ? 'Click to set the end point'
+      ? `Click to set the end point (${MOVEMENT_RANGE} MP range shown)`
       : result
         ? `Cost: ${result.totalCost.toFixed(1)} MP`
         : 'No path found';
@@ -169,6 +200,17 @@ export function MovementMap() {
           {showGrid && gridDataUrl && (
             <image
               href={gridDataUrl}
+              x={vbX} y={vbY}
+              width={vbW} height={vbH}
+              imageRendering="pixelated"
+              preserveAspectRatio="none"
+            />
+          )}
+
+          {/* Movement range overlay */}
+          {rangeDataUrl && (
+            <image
+              href={rangeDataUrl}
               x={vbX} y={vbY}
               width={vbW} height={vbH}
               imageRendering="pixelated"

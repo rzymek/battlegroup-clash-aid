@@ -130,6 +130,53 @@ function reconstruct(
   return path.reverse();
 }
 
+/**
+ * Dijkstra flood-fill: returns a Float32Array (size rows×cols) with the minimum
+ * movement cost to reach each cell from `start`. Cells costing more than `maxCost`
+ * (or impassable) are left at Infinity.
+ */
+export function findReachableCells(
+  start: Point,
+  grid: TerrainGrid,
+  maxCost: number,
+): Float32Array {
+  const { costs, rows, cols, viewBox } = grid;
+  const sr = Math.max(0, Math.min(rows - 1, Math.floor((start.y - viewBox.y) / viewBox.height * rows)));
+  const sc = Math.max(0, Math.min(cols - 1, Math.floor((start.x - viewBox.x) / viewBox.width * cols)));
+
+  const dist = new Float32Array(rows * cols).fill(Infinity);
+  const startIdx = sr * cols + sc;
+  dist[startIdx] = 0;
+
+  const pq = new MinHeap();
+  pq.push(startIdx, 0);
+
+  while (pq.size > 0) {
+    const curIdx = pq.pop();
+    const cr = Math.floor(curIdx / cols);
+    const cc = curIdx % cols;
+    const curDist = dist[curIdx];
+
+    for (let d = 0; d < DIRS.length; d++) {
+      const nr = cr + DIRS[d][0];
+      const nc = cc + DIRS[d][1];
+      if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) continue;
+
+      const ni = nr * cols + nc;
+      const terrainCost = costs[ni];
+      if (!isFinite(terrainCost)) continue;
+
+      const newDist = curDist + DIR_DIST[d] * terrainCost;
+      if (newDist <= maxCost && newDist < dist[ni]) {
+        dist[ni] = newDist;
+        pq.push(ni, newDist);
+      }
+    }
+  }
+
+  return dist;
+}
+
 class MinHeap {
   private heap: [number, number][] = []; // [fScore, nodeIdx]
 
