@@ -1,6 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'preact/hooks';
 import mapBSvgRaw from '../../resources/mapB.svg?raw';
-import mapBJpg from '../../resources/maps/mapB.jpg';
 import { buildTerrainGrid } from './terrainGrid.ts';
 import { findPath, findReachableCells, screenToSvg } from './findPath.ts';
 import type { Point, PathResult, TerrainGrid } from './types.ts';
@@ -42,7 +41,12 @@ const TERRAIN_LAYERS: RenderableLayer[] = (() => {
       paths.push({
         id: p.id,
         d: p.getAttribute('d') ?? '',
-        style: parseCss(p.getAttribute('style') ?? ''),
+        style: Object.fromEntries(
+          Array.from(p.style).map(prop => [
+            prop.replace(/-([a-z])/g, (_, c: string) => c.toUpperCase()),
+            p.style.getPropertyValue(prop),
+          ])
+        ),
         transform: p.getAttribute('transform') ?? '',
       });
     }
@@ -69,46 +73,47 @@ const COST_COLORS: Record<number, [r: number, g: number, b: number, a: number]> 
   [Infinity]: [30, 80, 220, 200], // river — blue, impassable
 };
 
+function buildDataUrl(cols: number, rows: number, fill: (img: ImageData) => void): string {
+  const canvas = document.createElement('canvas');
+  canvas.width = cols;
+  canvas.height = rows;
+  const ctx = canvas.getContext('2d')!;
+  const img = ctx.createImageData(cols, rows);
+  fill(img);
+  ctx.putImageData(img, 0, 0);
+  return canvas.toDataURL();
+}
+
 let cachedGridDataUrl: string | null = null;
 function getGridDataUrl(): string {
   if (cachedGridDataUrl) return cachedGridDataUrl;
   const grid = getGrid();
-  const canvas = document.createElement('canvas');
-  canvas.width = grid.cols;
-  canvas.height = grid.rows;
-  const ctx = canvas.getContext('2d')!;
-  const img = ctx.createImageData(grid.cols, grid.rows);
-  for (let i = 0; i < grid.costs.length; i++) {
-    const color = COST_COLORS[grid.costs[i]];
-    if (color) {
-      img.data[i * 4 + 0] = color[0];
-      img.data[i * 4 + 1] = color[1];
-      img.data[i * 4 + 2] = color[2];
-      img.data[i * 4 + 3] = color[3];
+  cachedGridDataUrl = buildDataUrl(grid.cols, grid.rows, img => {
+    for (let i = 0; i < grid.costs.length; i++) {
+      const color = COST_COLORS[grid.costs[i]];
+      if (color) {
+        img.data[i * 4] = color[0];
+        img.data[i * 4 + 1] = color[1];
+        img.data[i * 4 + 2] = color[2];
+        img.data[i * 4 + 3] = color[3];
+      }
     }
-  }
-  ctx.putImageData(img, 0, 0);
-  cachedGridDataUrl = canvas.toDataURL();
+  });
   return cachedGridDataUrl;
 }
 
 function buildRangeDataUrl(dist: Float32Array, grid: TerrainGrid): string {
-  const canvas = document.createElement('canvas');
-  canvas.width = grid.cols;
-  canvas.height = grid.rows;
-  const ctx = canvas.getContext('2d')!;
-  const img = ctx.createImageData(grid.cols, grid.rows);
-  for (let i = 0; i < dist.length; i++) {
-    if (dist[i] <= MOVEMENT_RANGE) {
-      const ratio = dist[i] / MOVEMENT_RANGE; // 0 at start, 1 at edge
-      img.data[i * 4 + 0] = Math.round(ratio * 200); // green → yellow-orange
-      img.data[i * 4 + 1] = 180;
-      img.data[i * 4 + 2] = 0;
-      img.data[i * 4 + 3] = 130;
+  return buildDataUrl(grid.cols, grid.rows, img => {
+    for (let i = 0; i < dist.length; i++) {
+      if (dist[i] <= MOVEMENT_RANGE) {
+        const ratio = dist[i] / MOVEMENT_RANGE;
+        img.data[i * 4] = Math.round(ratio * 200);
+        img.data[i * 4 + 1] = 180;
+        img.data[i * 4 + 2] = 0;
+        img.data[i * 4 + 3] = 130;
+      }
     }
-  }
-  ctx.putImageData(img, 0, 0);
-  return canvas.toDataURL();
+  });
 }
 
 // ── Component ─────────────────────────────────────────────────────────────────
@@ -119,7 +124,6 @@ export function MovementMap() {
   const [endPt, setEndPt] = useState<Point | null>(null);
   const [result, setResult] = useState<PathResult | null>(null);
   const [showGrid, setShowGrid] = useState(false);
-  const [gridDataUrl, setGridDataUrl] = useState<string | null>(null);
   const [rangeDataUrl, setRangeDataUrl] = useState<string | null>(null);
   const [vb, setVb] = useState(INITIAL_VB);
   const [isDragging, setIsDragging] = useState(false);
@@ -129,10 +133,6 @@ export function MovementMap() {
   const movedRef = useRef(false);
   const clickHandlerRef = useRef<(e: MouseEvent) => void>(() => {});
   const rangeDistRef = useRef<Float32Array | null>(null);
-
-  useEffect(() => {
-    if (showGrid && !gridDataUrl) setGridDataUrl(getGridDataUrl());
-  }, [showGrid, gridDataUrl]);
 
   useEffect(() => {
     if (startPt && !endPt) {
@@ -240,11 +240,14 @@ export function MovementMap() {
     movedRef.current = false;
   }, [vb]);
 
-  const reset = useCallback(() => {
+  const reset = () => {
     setStartPt(null);
     setEndPt(null);
     setResult(null);
-  }, []);
+    dragRef.current = null;
+    movedRef.current = false;
+    setIsDragging(false);
+  };
 
   const status = !startPt
     ? 'Click on the map to set the start point'
@@ -267,13 +270,7 @@ export function MovementMap() {
         <span style={{ fontSize: '0.9em', color: '#444' }}>{status}</span>
       </div>
 
-      <div style={{ position: 'relative' }}>
-        <img
-          src={mapBJpg}
-          alt="Map B"
-          draggable={false}
-          style={{ width: '100%', display: 'block', userSelect: 'none', visibility:'hidden' }}
-        />
+      <div style={{ position: 'relative', width: '100%', aspectRatio: `${vbW} / ${vbH}` }}>
         <svg
           ref={svgRef}
           viewBox={`${vb.x} ${vb.y} ${vb.w} ${vb.h}`}
@@ -293,9 +290,9 @@ export function MovementMap() {
           )}
 
           {/* Rasterised cost grid */}
-          {showGrid && gridDataUrl && (
+          {showGrid && (
             <image
-              href={gridDataUrl}
+              href={getGridDataUrl()}
               x={vbX} y={vbY}
               width={vbW} height={vbH}
               imageRendering="pixelated"
@@ -356,17 +353,3 @@ function Marker({ pt, color, label }: { pt: Point; color: string; label: string 
   );
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
-function parseCss(css: string): Record<string, string> {
-  const out: Record<string, string> = {};
-  for (const decl of css.split(';')) {
-    const colon = decl.indexOf(':');
-    if (colon < 0) continue;
-    const prop = decl.slice(0, colon).trim();
-    const value = decl.slice(colon + 1).trim();
-    if (!prop || !value) continue;
-    out[prop.replace(/-([a-z])/g, (_, c: string) => c.toUpperCase())] = value;
-  }
-  return out;
-}
