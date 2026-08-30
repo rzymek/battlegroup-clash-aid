@@ -1,6 +1,5 @@
 import type { Point, TerrainLayer, TerrainGrid, ViewBox } from './types.ts';
 import { flattenSvgPath } from './parseSvgPath.ts';
-import { pointInPolygon } from './pointInPolygon.ts';
 
 const INKSCAPE_NS = 'http://www.inkscape.org/namespaces/inkscape';
 
@@ -94,53 +93,54 @@ function applyLayer(
   viewBox: ViewBox, cellW: number, cellH: number,
   merge: Merge,
 ) {
-  // Point-in-polygon for filled zones
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      const pt = cellCenter(r, c, viewBox, rows, cols);
-      for (const polygon of layer.polygons) {
-        if (pointInPolygon(pt, polygon)) {
-          costs[r * cols + c] = merge(costs[r * cols + c], layer.cost);
-          break;
-        }
+  for (const polygon of layer.polygons) {
+    // Horizontal scanlines: correct for wide polygons and thin vertical/diagonal features.
+    for (let r = 0; r < rows; r++) {
+      const y = viewBox.y + (r + 0.5) * cellH;
+      const xs = xIntersections(polygon, y);
+      for (let i = 0; i + 1 < xs.length; i += 2) {
+        const c0 = Math.max(0, Math.floor((xs[i] - viewBox.x) / cellW));
+        const c1 = Math.min(cols - 1, Math.floor((xs[i + 1] - viewBox.x) / cellW));
+        for (let c = c0; c <= c1; c++) costs[r * cols + c] = merge(costs[r * cols + c], layer.cost);
       }
     }
-  }
-
-  // Edge rasterization for thin features narrower than one cell
-  for (const polygon of layer.polygons) {
-    for (let i = 0; i < polygon.length; i++) {
-      rasterizeSegment(
-        polygon[i], polygon[(i + 1) % polygon.length],
-        viewBox, cellW, cellH, rows, cols, costs, layer.cost, merge,
-      );
+    // Vertical scanlines: catches thin nearly-horizontal features (roads running left/right).
+    for (let c = 0; c < cols; c++) {
+      const x = viewBox.x + (c + 0.5) * cellW;
+      const ys = yIntersections(polygon, x);
+      for (let i = 0; i + 1 < ys.length; i += 2) {
+        const r0 = Math.max(0, Math.floor((ys[i] - viewBox.y) / cellH));
+        const r1 = Math.min(rows - 1, Math.floor((ys[i + 1] - viewBox.y) / cellH));
+        for (let r = r0; r <= r1; r++) costs[r * cols + c] = merge(costs[r * cols + c], layer.cost);
+      }
     }
   }
 }
 
-/** Samples a segment at ½-cell intervals so no traversed cell is missed. */
-function rasterizeSegment(
-  p0: Point, p1: Point,
-  vb: ViewBox, cellW: number, cellH: number,
-  rows: number, cols: number,
-  costs: Float32Array,
-  cost: number,
-  merge: Merge,
-) {
-  const gc0 = (p0.x - vb.x) / cellW;
-  const gr0 = (p0.y - vb.y) / cellH;
-  const gc1 = (p1.x - vb.x) / cellW;
-  const gr1 = (p1.y - vb.y) / cellH;
-
-  const n = Math.max(1, Math.ceil(Math.sqrt((gc1 - gc0) ** 2 + (gr1 - gr0) ** 2) * 2));
-  for (let j = 0; j <= n; j++) {
-    const t = j / n;
-    const c = Math.floor(gc0 + t * (gc1 - gc0));
-    const r = Math.floor(gr0 + t * (gr1 - gr0));
-    if (c >= 0 && c < cols && r >= 0 && r < rows) {
-      costs[r * cols + c] = merge(costs[r * cols + c], cost);
+/** X-coordinates where polygon edges cross the horizontal line at y (sorted ascending). */
+function xIntersections(polygon: Point[], y: number): number[] {
+  const xs: number[] = [];
+  for (let i = 0; i < polygon.length; i++) {
+    const p0 = polygon[i];
+    const p1 = polygon[(i + 1) % polygon.length];
+    if ((p0.y < y) !== (p1.y < y)) {
+      xs.push(p0.x + (y - p0.y) / (p1.y - p0.y) * (p1.x - p0.x));
     }
   }
+  return xs.sort((a, b) => a - b);
+}
+
+/** Y-coordinates where polygon edges cross the vertical line at x (sorted ascending). */
+function yIntersections(polygon: Point[], x: number): number[] {
+  const ys: number[] = [];
+  for (let i = 0; i < polygon.length; i++) {
+    const p0 = polygon[i];
+    const p1 = polygon[(i + 1) % polygon.length];
+    if ((p0.x < x) !== (p1.x < x)) {
+      ys.push(p0.y + (x - p0.x) / (p1.x - p0.x) * (p1.y - p0.y));
+    }
+  }
+  return ys.sort((a, b) => a - b);
 }
 
 function parseTranslate(transform: string | null): { tx: number; ty: number } {

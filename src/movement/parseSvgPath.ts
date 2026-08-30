@@ -95,6 +95,38 @@ export function flattenSvgPath(d: string, stepsPerSegment = 12): Point[] {
         }
         break;
       }
+      case 'H': {
+        for (let i = 0; i < args.length; i++) {
+          x = args[i];
+          points.push({ x, y });
+          lastCpX = x; lastCpY = y;
+        }
+        break;
+      }
+      case 'h': {
+        for (let i = 0; i < args.length; i++) {
+          x += args[i];
+          points.push({ x, y });
+          lastCpX = x; lastCpY = y;
+        }
+        break;
+      }
+      case 'V': {
+        for (let i = 0; i < args.length; i++) {
+          y = args[i];
+          points.push({ x, y });
+          lastCpX = x; lastCpY = y;
+        }
+        break;
+      }
+      case 'v': {
+        for (let i = 0; i < args.length; i++) {
+          y += args[i];
+          points.push({ x, y });
+          lastCpX = x; lastCpY = y;
+        }
+        break;
+      }
       case 'z':
       case 'Z':
         break;
