@@ -32,6 +32,7 @@ const initialState = {
   },
   indirect: {
     drm: {
+      ew_uas_coordination: yesNo,
       ew_triangulation: yesNo,
       ew_interference: yesNo,
       losSupport_uas: yesNo,

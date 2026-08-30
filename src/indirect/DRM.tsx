@@ -2,6 +2,9 @@ import {State} from "../state/state.tsx";
 import {DRMDef} from "../calculateDRM.tsx";
 
 export const indirectDRM: DRMDef<State['indirect']> = {
+  ew_uas_coordination: {
+    yes: +2,
+  },
   ew_interference: {
     yes: -2,
   },
@@ -63,6 +66,9 @@ export const indirectDRM: DRMDef<State['indirect']> = {
     if (state.attacker.firetype !== 'FPV') {
       result = result.map(it => it.reason === 'fpv_jamming' ?
         ({...it, modifier: 0, note: '**FPV ignores this penalty.'}) : it)
+    }
+    if(state.drm.ew_uas_coordination ==='yes' && state.drm.losSupport_uas !== 'yes') {
+      result = result.filter(it => it.reason !== 'ew_uas_coordination')
     }
     return result;
   }

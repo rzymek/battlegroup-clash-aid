@@ -6,8 +6,9 @@ import UAS from "../svg/uas.svg?react";
 import moved from "../svg/moved.png";
 import fst from "../svg/fst.png";
 import recce from "../svg/recce.png";
-import triangulation from "../svg/triangulation.png";
-import interference from "../svg/interference.png";
+import uasCoordination from "../svg/ew-chits/1A.svg";
+import triangulation from "../svg/ew-chits/3A.svg";
+import interference from "../svg/ew-chits/3B.svg";
 import Tracked from "../svg/tracked.svg?react";
 import {ComponentType} from "preact";
 import {Img, imgComp} from "../imgComp.tsx";
@@ -36,6 +37,7 @@ export function IndirectFire() {
       <div style={{textAlign: 'center', padding: 4, borderRight: 'solid 1px black',}}>
         <Select of={[state.indirect.drm, 'losSupport_other']} values={losSupport}/>
         <Togglable of={[state.indirect.drm, 'losSupport_uas', 'yes']}><UAS/></Togglable>
+        <Togglable of={[state.indirect.drm, 'ew_uas_coordination', 'yes']}><Img src={uasCoordination}/></Togglable>
         <Togglable of={[state.indirect.drm, 'ew_triangulation', 'yes']}><Img src={triangulation}/></Togglable>
         <Togglable of={[state.indirect.drm, 'ew_interference', 'yes']}><Img src={interference}/></Togglable>
         <Select of={[state.indirect.drm, 'fpv_jamming']} values={fpvJammingSvg}/>

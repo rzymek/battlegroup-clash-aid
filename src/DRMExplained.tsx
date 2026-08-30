@@ -20,7 +20,7 @@ export function DRMExplained<T extends { drm: DRMState }>(props: {
         <div>{props.reasonLabels[it.reason] ?? it.reason}</div>
         <div>{it.note}</div>
       </td>
-      <th>{it.modifier}</th>
+      <th>{it.modifier > 0 && '+'}{it.modifier}</th>
     </tr>)}
     </tbody>
   </table>
