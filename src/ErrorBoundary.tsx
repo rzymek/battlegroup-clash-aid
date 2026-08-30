@@ -1,5 +1,6 @@
 import {Component, ComponentChildren} from 'preact';
 import {serializeError} from 'serialize-error';
+import {state} from "./state/state.tsx";
 
 interface Props {
   children: ComponentChildren;
@@ -23,6 +24,7 @@ export class ErrorBoundary extends Component<Props, State> {
         <div style={{padding: 16, fontFamily: 'monospace', color: '#c00'}}>
           <strong>Error: {error.message}</strong>
           <button style={{margin: 8, padding: 6}} onClick={() => window.location.reload()}>Reset</button>
+          <pre>State: {JSON.stringify(state, null, 2)}</pre>
           {error.stack && <pre style={{fontSize: 12, marginTop: 8, whiteSpace: 'pre-wrap'}}>{error.stack}</pre>}
         </div>
       );
