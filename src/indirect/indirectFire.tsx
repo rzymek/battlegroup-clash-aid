@@ -42,8 +42,8 @@ export function IndirectFire() {
       </div>
       <div style={{textAlign: 'center', padding: 4,}}>
         <Select of={[state.indirect.drm, 'target_marker']} values={targetMarker}/>
-        <Select of={[state.indirect.drm, 'target_footInTerrain']} values={allTerrain}/>
         <Togglable of={[state.indirect.drm, 'target_moved', 'yes']}>{imgComp(moved)()}</Togglable>
+        <Select of={[state.indirect.drm, 'target_footInTerrain']} values={allTerrain}/>
         <Select of={[state.indirect.drm, 'target_shellScrapes']} values={shellScrapesSvg}/>
         <Togglable of={[state.indirect.drm, 'target_tracked', 'yes']}><Tracked/></Togglable>
       </div>
