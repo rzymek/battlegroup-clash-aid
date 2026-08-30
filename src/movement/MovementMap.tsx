@@ -9,11 +9,12 @@ import { getGridDataUrl, buildRangeDataUrl } from './gridRendering.ts';
 const MOVEMENT_RANGE = 20;
 
 type FeType = 'foot' | 'wheeled' | 'tracked';
+type GridKey = FeType | 'wheeled-column' | 'tracked-column';
 
 // Costs normalised so Open terrain = 1.0 for each type.
 // Formula: open_allowance / terrain_allowance (Player Aid 2 Movement Table).
 // Dense Wood is No-Go for Wheeled/Tracked except via road (not modelled here).
-const LAYER_COSTS: Record<FeType, Record<string, number>> = {
+const LAYER_COSTS: Record<GridKey, Record<string, number>> = {
   foot: {
     // Open baseline: 750 m
     road: 1.0,            // Minor Road: 750 m
@@ -50,6 +51,13 @@ const LAYER_COSTS: Record<FeType, Record<string, number>> = {
     'steep hill': 8.0,    // 250 m
     river: Infinity,
   },
+  // Column: Major Road only, 3 000 m allowance. defaultCost=Infinity blocks all off-road.
+  'wheeled-column': {
+    'major road': 0.5,    // 3 000 m (open baseline 1 500 m → 1500/3000)
+  },
+  'tracked-column': {
+    'major road': 2 / 3,  // 3 000 m (open baseline 2 000 m → 2000/3000)
+  },
 };
 
 const vbMatch = mapBSvgRaw.match(/viewBox="([^"]+)"/);
@@ -58,12 +66,32 @@ const INITIAL_VB = { x: vbX, y: vbY, w: vbW, h: vbH };
 
 // ── Lazy terrain grid + grid image (built once on first use) ─────────────────
 
-const gridCache = new Map<FeType, TerrainGrid>();
+const gridCache = new Map<GridKey, TerrainGrid>();
 function getGrid(feType: FeType): TerrainGrid {
   if (!gridCache.has(feType)) {
     gridCache.set(feType, buildTerrainGrid(mapBSvgRaw, LAYER_COSTS[feType]));
   }
   return gridCache.get(feType)!;
+}
+
+function getColumnGrid(feType: FeType): TerrainGrid | null {
+  if (feType === 'foot') return null;
+  const key: GridKey = `${feType}-column`;
+  if (!gridCache.has(key)) {
+    gridCache.set(key, buildTerrainGrid(mapBSvgRaw, LAYER_COSTS[key], Infinity));
+  }
+  return gridCache.get(key)!;
+}
+
+function mergedReachable(start: Point, feType: FeType, maxCost: number): Float32Array {
+  const normal = findReachableCells(start, getGrid(feType), maxCost);
+  const colGrid = getColumnGrid(feType);
+  if (!colGrid) return normal;
+  const col = findReachableCells(start, colGrid, maxCost);
+  for (let i = 0; i < normal.length; i++) {
+    if (col[i] < normal[i]) normal[i] = col[i];
+  }
+  return normal;
 }
 
 // ── Component ─────────────────────────────────────────────────────────────────
@@ -87,10 +115,9 @@ export function MovementMap() {
 
   useEffect(() => {
     if (startPt && !endPt) {
-      const grid = getGrid(feType);
-      const dist = findReachableCells(startPt, grid, MOVEMENT_RANGE);
+      const dist = mergedReachable(startPt, feType, MOVEMENT_RANGE);
       rangeDistRef.current = dist;
-      setRangeDataUrl(buildRangeDataUrl(dist, grid, MOVEMENT_RANGE));
+      setRangeDataUrl(buildRangeDataUrl(dist, getGrid(feType), MOVEMENT_RANGE));
     } else {
       rangeDistRef.current = null;
       setRangeDataUrl(null);
@@ -118,7 +145,8 @@ export function MovementMap() {
           return;
         }
         setEndPt(pt);
-        setResult(findPath(startPt, pt, grid));
+        const path = findPath(startPt, pt, grid) ?? findPath(startPt, pt, getColumnGrid(feType) ?? grid);
+        setResult(path);
       }
     };
   }, [startPt, endPt, feType]);
@@ -200,14 +228,6 @@ export function MovementMap() {
     setIsDragging(false);
   };
 
-  const status = !startPt
-    ? 'Click on the map to set the start point'
-    : !endPt
-      ? `Click to set the end point (${MOVEMENT_RANGE} MP range shown)`
-      : result
-        ? `Cost: ${result.totalCost.toFixed(1)} MP`
-        : 'No path found';
-
   const pathPoints = result?.points.map(p => `${p.x},${p.y}`).join(' ');
 
   return (
@@ -228,7 +248,6 @@ export function MovementMap() {
             {t.charAt(0).toUpperCase() + t.slice(1)}
           </button>
         ))}
-        <span style={{ fontSize: '0.9em', color: '#444' }}>{status}</span>
       </div>
 
       <div style={{ position: 'relative', width: '100%', aspectRatio: `${vbW} / ${vbH}` }}>
@@ -239,11 +258,9 @@ export function MovementMap() {
           onMouseDown={handleMouseDown}
         >
           {/* Map background */}
-          {!showGrid && (
-            <image href={mapBJpg} x={vbX} y={vbY} width={vbW} height={vbH} preserveAspectRatio="none" />
-          )}
+          <image href={mapBJpg} x={vbX} y={vbY} width={vbW} height={vbH} preserveAspectRatio="none" />
 
-          {/* Rasterised cost grid */}
+          {/* Rasterised cost grid overlay */}
           {showGrid && (
             <image
               href={getGridDataUrl(getGrid(feType))}
