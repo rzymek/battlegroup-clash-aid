@@ -13,6 +13,7 @@ const LAYER_COSTS: Record<string, number> = {
   lightWood: 2,
   denseWood: 3,
   river: Infinity,
+  'major road': 0.25,
   road: 0.5,
 };
 
@@ -22,7 +23,7 @@ const INKSCAPE_NS = 'http://www.inkscape.org/namespaces/inkscape';
 
 const vbMatch = mapBSvgRaw.match(/viewBox="([^"]+)"/);
 const [vbX, vbY, vbW, vbH] = (vbMatch?.[1] ?? '0 0 1000 1000').split(/[\s,]+/).map(Number);
-const VIEW_BOX = `${vbX} ${vbY} ${vbW} ${vbH}`;
+const INITIAL_VB = { x: vbX, y: vbY, w: vbW, h: vbH };
 
 interface RenderablePath { id: string; d: string; style: Record<string, string>; transform: string }
 interface RenderableLayer { label: string; paths: RenderablePath[] }
@@ -58,6 +59,7 @@ function getGrid(): TerrainGrid {
 
 // Colors per cost level, matched to SVG terrain fills.
 const COST_COLORS: Record<number, [r: number, g: number, b: number, a: number]> = {
+  0.25: [255, 140, 0, 220], // major road — orange
   0.5: [220, 180, 60, 200], // road — yellow
   2: [0, 187, 15, 140],     // lightWood — bright green
   3: [0, 69, 6, 180],       // denseWood — dark green
@@ -117,6 +119,13 @@ export function MovementMap() {
   const [showGrid, setShowGrid] = useState(false);
   const [gridDataUrl, setGridDataUrl] = useState<string | null>(null);
   const [rangeDataUrl, setRangeDataUrl] = useState<string | null>(null);
+  const [vb, setVb] = useState(INITIAL_VB);
+  const [isDragging, setIsDragging] = useState(false);
+
+  // Keep a ref so window-level handlers always see current values without deps.
+  const dragRef = useRef<{ cx: number; cy: number; snap: typeof INITIAL_VB } | null>(null);
+  const movedRef = useRef(false);
+  const clickHandlerRef = useRef<(e: MouseEvent) => void>(() => {});
 
   useEffect(() => {
     if (showGrid && !gridDataUrl) setGridDataUrl(getGridDataUrl());
@@ -130,19 +139,89 @@ export function MovementMap() {
     }
   }, [startPt, endPt]);
 
-  const handleClick = useCallback((e: MouseEvent) => {
-    if (!svgRef.current) return;
-    const pt = screenToSvg({ x: e.clientX, y: e.clientY }, svgRef.current);
-
-    if (!startPt || endPt) {
-      setStartPt(pt);
-      setEndPt(null);
-      setResult(null);
-    } else {
-      setEndPt(pt);
-      setResult(findPath(startPt, pt, getGrid()));
-    }
+  // Keep click logic up-to-date without stale closures in window handler.
+  useEffect(() => {
+    clickHandlerRef.current = (e: MouseEvent) => {
+      if (!svgRef.current) return;
+      const pt = screenToSvg({ x: e.clientX, y: e.clientY }, svgRef.current);
+      if (!startPt || endPt) {
+        setStartPt(pt);
+        setEndPt(null);
+        setResult(null);
+      } else {
+        setEndPt(pt);
+        setResult(findPath(startPt, pt, getGrid()));
+      }
+    };
   }, [startPt, endPt]);
+
+  // Wheel zoom centered on cursor.
+  useEffect(() => {
+    const svg = svgRef.current;
+    if (!svg) return;
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const rect = svg.getBoundingClientRect();
+      const factor = e.deltaY > 0 ? 1.15 : 1 / 1.15;
+      setVb(v => {
+        const cx = v.x + (e.clientX - rect.left) / rect.width * v.w;
+        const cy = v.y + (e.clientY - rect.top) / rect.height * v.h;
+        return {
+          x: cx + (v.x - cx) * factor,
+          y: cy + (v.y - cy) * factor,
+          w: v.w * factor,
+          h: v.h * factor,
+        };
+      });
+    };
+    svg.addEventListener('wheel', onWheel, { passive: false });
+    return () => svg.removeEventListener('wheel', onWheel);
+  }, []);
+
+  // Pan: track mouse on window so drag works outside the SVG bounds.
+  useEffect(() => {
+    const onMouseMove = (e: MouseEvent) => {
+      if (!dragRef.current) return;
+      const dx = e.clientX - dragRef.current.cx;
+      const dy = e.clientY - dragRef.current.cy;
+      if (!movedRef.current && (Math.abs(dx) > 3 || Math.abs(dy) > 3)) {
+        movedRef.current = true;
+        setIsDragging(true);
+      }
+      if (movedRef.current) {
+        const svg = svgRef.current;
+        if (!svg) return;
+        const rect = svg.getBoundingClientRect();
+        const { snap } = dragRef.current;
+        setVb({
+          x: snap.x - dx * snap.w / rect.width,
+          y: snap.y - dy * snap.h / rect.height,
+          w: snap.w,
+          h: snap.h,
+        });
+      }
+    };
+    const onMouseUp = (e: MouseEvent) => {
+      if (!dragRef.current) return;
+      const wasMoved = movedRef.current;
+      dragRef.current = null;
+      movedRef.current = false;
+      setIsDragging(false);
+      if (!wasMoved) clickHandlerRef.current(e);
+    };
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+    };
+  }, []);
+
+  const handleMouseDown = useCallback((e: MouseEvent) => {
+    if (e.button !== 0) return;
+    dragRef.current = { cx: e.clientX, cy: e.clientY, snap: vb };
+    movedRef.current = false;
+  }, [vb]);
 
   const reset = useCallback(() => {
     setStartPt(null);
@@ -180,9 +259,9 @@ export function MovementMap() {
         />
         <svg
           ref={svgRef}
-          viewBox={VIEW_BOX}
-          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', cursor: 'crosshair' }}
-          onClick={handleClick}
+          viewBox={`${vb.x} ${vb.y} ${vb.w} ${vb.h}`}
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', cursor: isDragging ? 'grabbing' : 'crosshair' }}
+          onMouseDown={handleMouseDown}
         >
           {/* Terrain overlays (SVG bezier polygons) */}
           {!showGrid && TERRAIN_LAYERS.map(layer =>
