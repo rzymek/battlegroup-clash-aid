@@ -24,6 +24,7 @@
     "npm-run-all": "^4.1.5",
     "preact": "^10.29.0",
     "remeda": "^2.33.7",
+    "serialize-error": "^13.0.1",
     "typescript": "^6.0.2",
     "vite": "8.0.3",
     "vite-plugin-pwa": "^1.2.0",
