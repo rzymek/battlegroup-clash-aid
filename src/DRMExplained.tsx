@@ -18,7 +18,12 @@ export function DRMExplained<T extends { drm: DRMState }>(props: {
     <tbody>
     {drm.reasons.map((it, idx) => <tr key={idx}>
       <td>
-        <div><BoldifyValue value={props.state.drm[it.reason]}>
+        <div><BoldifyValue value={props.state.drm[it.reason]} values={{
+          lightWood: "Light Wood",
+          denseWood: "Dense Wood",
+          lightUrban: "Light Urban",
+          urban: "Urban",
+        }}>
           {props.reasonLabels[it.reason] ?? it.reason}
         </BoldifyValue></div>
         <div>{it.note}</div>
