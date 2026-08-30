@@ -23,20 +23,13 @@ export function buildTerrainGrid(
   const { layers, viewBox } = parseTerrainLayers(svgContent, layerCosts, defaultCost);
 
   const costs = new Float32Array(gridRows * gridCols).fill(defaultCost);
+  const cellW = viewBox.width / gridCols;
+  const cellH = viewBox.height / gridRows;
 
-  for (let r = 0; r < gridRows; r++) {
-    for (let c = 0; c < gridCols; c++) {
-      const pt = cellCenter(r, c, viewBox, gridRows, gridCols);
-      let maxCost = defaultCost;
-      for (const layer of layers) {
-        for (const polygon of layer.polygons) {
-          if (pointInPolygon(pt, polygon)) {
-            maxCost = Math.max(maxCost, layer.cost);
-          }
-        }
-      }
-      costs[r * gridCols + c] = maxCost;
-    }
+  // Process layers in SVG document order: last layer always wins, matching SVG rendering.
+  for (const layer of layers) {
+    applyLayer(layer, costs, gridRows, gridCols, viewBox, cellW, cellH,
+      (_, cost) => cost);
   }
 
   return { costs, rows: gridRows, cols: gridCols, viewBox };
@@ -90,6 +83,64 @@ function parseTerrainLayers(
   }
 
   return { layers, viewBox };
+}
+
+type Merge = (existing: number, cost: number) => number;
+
+function applyLayer(
+  layer: TerrainLayer,
+  costs: Float32Array,
+  rows: number, cols: number,
+  viewBox: ViewBox, cellW: number, cellH: number,
+  merge: Merge,
+) {
+  // Point-in-polygon for filled zones
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const pt = cellCenter(r, c, viewBox, rows, cols);
+      for (const polygon of layer.polygons) {
+        if (pointInPolygon(pt, polygon)) {
+          costs[r * cols + c] = merge(costs[r * cols + c], layer.cost);
+          break;
+        }
+      }
+    }
+  }
+
+  // Edge rasterization for thin features narrower than one cell
+  for (const polygon of layer.polygons) {
+    for (let i = 0; i < polygon.length; i++) {
+      rasterizeSegment(
+        polygon[i], polygon[(i + 1) % polygon.length],
+        viewBox, cellW, cellH, rows, cols, costs, layer.cost, merge,
+      );
+    }
+  }
+}
+
+/** Samples a segment at ½-cell intervals so no traversed cell is missed. */
+function rasterizeSegment(
+  p0: Point, p1: Point,
+  vb: ViewBox, cellW: number, cellH: number,
+  rows: number, cols: number,
+  costs: Float32Array,
+  cost: number,
+  merge: Merge,
+) {
+  const gc0 = (p0.x - vb.x) / cellW;
+  const gr0 = (p0.y - vb.y) / cellH;
+  const gc1 = (p1.x - vb.x) / cellW;
+  const gr1 = (p1.y - vb.y) / cellH;
+
+  const n = Math.max(1, Math.ceil(Math.sqrt((gc1 - gc0) ** 2 + (gr1 - gr0) ** 2) * 2));
+  for (let j = 0; j <= n; j++) {
+    const t = j / n;
+    const c = Math.floor(gc0 + t * (gc1 - gc0));
+    const r = Math.floor(gr0 + t * (gr1 - gr0));
+    if (c >= 0 && c < cols && r >= 0 && r < rows) {
+      costs[r * cols + c] = merge(costs[r * cols + c], cost);
+    }
+  }
 }
 
 function parseTranslate(transform: string | null): { tx: number; ty: number } {

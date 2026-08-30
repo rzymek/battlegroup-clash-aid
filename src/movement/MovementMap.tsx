@@ -10,6 +10,8 @@ import type { Point, PathResult, TerrainGrid } from './types.ts';
 const LAYER_COSTS: Record<string, number> = {
   lightWood: 2,
   denseWood: 3,
+  river: Infinity,
+  road: 0.5,
 };
 
 // ── Parse SVG metadata once at module load ───────────────────────────────────
@@ -54,8 +56,10 @@ function getGrid(): TerrainGrid {
 
 // Colors per cost level, matched to SVG terrain fills.
 const COST_COLORS: Record<number, [r: number, g: number, b: number, a: number]> = {
-  2: [0, 187, 15, 140],   // lightWood — bright green
-  3: [0, 69, 6, 180],     // denseWood — dark green
+  0.5: [220, 180, 60, 200], // road — yellow
+  2: [0, 187, 15, 140],     // lightWood — bright green
+  3: [0, 69, 6, 180],       // denseWood — dark green
+  [Infinity]: [30, 80, 220, 200], // river — blue, impassable
 };
 
 let cachedGridDataUrl: string | null = null;
@@ -141,7 +145,7 @@ export function MovementMap() {
           src={mapBJpg}
           alt="Map B"
           draggable={false}
-          style={{ width: '100%', display: 'block', userSelect: 'none' }}
+          style={{ width: '100%', display: 'block', userSelect: 'none', visibility:'hidden' }}
         />
         <svg
           ref={svgRef}
