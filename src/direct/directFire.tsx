@@ -30,9 +30,9 @@ export function DirectFire() {
         padding: 4,
       }}>
         <Select of={[state.direct.drm, 'attacker_TQ']} values={tq}/>
-        <Togglable of={[state.direct.drm, 'attacker_overwatch', 'yes']}><Overwatch/></Togglable>
-        <Select of={[state.direct.drm, 'attacker_moved']} values={moved}/>
         <Select of={[state.direct.drm, 'attacker_suppression']} values={suppression}/>
+        <Select of={[state.direct.drm, 'attacker_moved']} values={moved}/>
+        <Togglable of={[state.direct.drm, 'attacker_overwatch', 'yes']}><Overwatch/></Togglable>
       </div>
       <div style={{
         borderRight: 'solid 1px black',
