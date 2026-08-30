@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'preact/hooks';
 import mapBSvgRaw from '../../resources/mapB.svg?raw';
+import mapBJpg from '../../resources/maps/mapB.jpg';
 import { buildTerrainGrid } from './terrainGrid.ts';
 import { findPath, findReachableCells, screenToSvg } from './findPath.ts';
 import type { Point, PathResult, TerrainGrid } from './types.ts';
@@ -18,42 +19,9 @@ const LAYER_COSTS: Record<string, number> = {
   road: 0.5,
 };
 
-// ── Parse SVG metadata once at module load ───────────────────────────────────
-
-const INKSCAPE_NS = 'http://www.inkscape.org/namespaces/inkscape';
-
 const vbMatch = mapBSvgRaw.match(/viewBox="([^"]+)"/);
 const [vbX, vbY, vbW, vbH] = (vbMatch?.[1] ?? '0 0 1000 1000').split(/[\s,]+/).map(Number);
 const INITIAL_VB = { x: vbX, y: vbY, w: vbW, h: vbH };
-
-interface RenderablePath { id: string; d: string; style: Record<string, string>; transform: string }
-interface RenderableLayer { label: string; paths: RenderablePath[] }
-
-const TERRAIN_LAYERS: RenderableLayer[] = (() => {
-  const doc = new DOMParser().parseFromString(mapBSvgRaw, 'image/svg+xml');
-  const layers: RenderableLayer[] = [];
-  for (const g of doc.querySelectorAll('g')) {
-    if (g.getAttributeNS(INKSCAPE_NS, 'groupmode') !== 'layer') continue;
-    const label = g.getAttributeNS(INKSCAPE_NS, 'label') ?? g.id;
-    if (!(label in LAYER_COSTS)) continue; // skip non-terrain layers (e.g. the image layer)
-    const paths: RenderablePath[] = [];
-    for (const p of g.querySelectorAll('path')) {
-      paths.push({
-        id: p.id,
-        d: p.getAttribute('d') ?? '',
-        style: Object.fromEntries(
-          Array.from(p.style).map(prop => [
-            prop.replace(/-([a-z])/g, (_, c: string) => c.toUpperCase()),
-            p.style.getPropertyValue(prop),
-          ])
-        ),
-        transform: p.getAttribute('transform') ?? '',
-      });
-    }
-    if (paths.length > 0) layers.push({ label, paths });
-  }
-  return layers;
-})();
 
 // ── Lazy terrain grid + grid image (built once on first use) ─────────────────
 
@@ -277,16 +245,9 @@ export function MovementMap() {
           style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', cursor: isDragging ? 'grabbing' : 'crosshair' }}
           onMouseDown={handleMouseDown}
         >
-          {/* Terrain overlays (SVG bezier polygons) */}
-          {!showGrid && TERRAIN_LAYERS.map(layer =>
-            layer.paths.map(p => (
-              <path
-                key={p.id}
-                d={p.d}
-                transform={p.transform}
-                style={p.style as preact.JSX.CSSProperties}
-              />
-            ))
+          {/* Map background */}
+          {!showGrid && (
+            <image href={mapBJpg} x={vbX} y={vbY} width={vbW} height={vbH} preserveAspectRatio="none" />
           )}
 
           {/* Rasterised cost grid */}
