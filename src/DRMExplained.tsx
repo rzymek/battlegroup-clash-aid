@@ -1,4 +1,5 @@
 import {calculateDRM, DRMDef, DRMState, LabelsFor} from "./calculateDRM.tsx";
+import {BoldifyValue} from "./BoldifyValue.tsx";
 
 export function DRMExplained<T extends { drm: DRMState }>(props: {
   state: T,
@@ -17,12 +18,14 @@ export function DRMExplained<T extends { drm: DRMState }>(props: {
     <tbody>
     {drm.reasons.map((it, idx) => <tr key={idx}>
       <td>
-        <div>{props.reasonLabels[it.reason] ?? it.reason}</div>
+        <div><BoldifyValue value={props.state.drm[it.reason]}>
+          {props.reasonLabels[it.reason] ?? it.reason}
+        </BoldifyValue></div>
         <div>{it.note}</div>
       </td>
       <th>{it.modifier > 0 && '+'}{it.modifier}</th>
     </tr>)}
     </tbody>
   </table>
-
 }
+
