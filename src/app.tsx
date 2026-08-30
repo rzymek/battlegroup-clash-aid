@@ -11,7 +11,7 @@ export function App() {
     <div style={{margin: 4, marginBottom: 16}}>
       <SelectionBar of={[state, 'combatTypes']} values={combatTypes} required/>
       <Router/>
-      {/*<pre>{JSON.stringify(state, null, 2)}</pre>*/}
+      {window.location.search === '?dbg' && <pre>{JSON.stringify(state, null, 2)}</pre>}
     </div>
   )
 }
