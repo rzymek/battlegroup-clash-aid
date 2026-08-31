@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'preact/hooks';
+import { useState, useRef, useEffect, useMemo } from 'preact/hooks';
 import mapBSvgRaw from '../../resources/mapB.svg?raw';
 import mapBJpg from '../../resources/maps/mapB.jpg';
 import { buildTerrainGrid } from './terrainGrid.ts';
@@ -70,6 +70,29 @@ const vbMatch = mapBSvgRaw.match(/viewBox="([^"]+)"/);
 const [vbX, vbY, vbW, vbH] = (vbMatch?.[1] ?? '0 0 1000 1000').split(/[\s,]+/).map(Number);
 const INITIAL_VB = { x: vbX, y: vbY, w: vbW, h: vbH };
 
+const ENEMY_SIZE_M = 200;
+
+function applyEnemies(grid: TerrainGrid, enemies: Point[]): TerrainGrid {
+  if (enemies.length === 0) return grid;
+  const { rows, cols, viewBox, metersPerUnit } = grid;
+  const costs = new Float32Array(grid.costs);
+  const halfSvg = (ENEMY_SIZE_M / metersPerUnit) / 2;
+  const cellW = viewBox.width / cols;
+  const cellH = viewBox.height / rows;
+  for (const enemy of enemies) {
+    const c0 = Math.max(0, Math.floor((enemy.x - halfSvg - viewBox.x) / cellW));
+    const c1 = Math.min(cols - 1, Math.floor((enemy.x + halfSvg - viewBox.x) / cellW));
+    const r0 = Math.max(0, Math.floor((enemy.y - halfSvg - viewBox.y) / cellH));
+    const r1 = Math.min(rows - 1, Math.floor((enemy.y + halfSvg - viewBox.y) / cellH));
+    for (let r = r0; r <= r1; r++) {
+      for (let c = c0; c <= c1; c++) {
+        costs[r * cols + c] = Infinity;
+      }
+    }
+  }
+  return { ...grid, costs };
+}
+
 /** Grid columns — rows are derived from the map aspect ratio so cells are square. */
 const GRID_RESOLUTION = 400;
 
@@ -92,11 +115,9 @@ function getColumnGrid(feType: FeType): TerrainGrid | null {
   return gridCache.get(key)!;
 }
 
-function mergedReachable(start: Point, feType: FeType, maxCost: number, noEnemyInLos: boolean): Float32Array {
-  const normal = findReachableCells(start, getGrid(feType), maxCost);
-  if (!noEnemyInLos) return normal;
-  const colGrid = getColumnGrid(feType);
-  if (!colGrid) return normal;
+function mergedReachable(start: Point, normalGrid: TerrainGrid, colGrid: TerrainGrid | null, maxCost: number, noEnemyInLos: boolean): Float32Array {
+  const normal = findReachableCells(start, normalGrid, maxCost);
+  if (!noEnemyInLos || !colGrid) return normal;
   // Column movement (all-on-major-road) is a separate mode: show its reach on top of normal range.
   const col = findReachableCells(start, colGrid, maxCost);
   for (let i = 0; i < normal.length; i++) {
@@ -117,10 +138,18 @@ export function MovementMap() {
   const [suppressed, setSuppressed] = useState(false);
   const [gpsDisrupted, setGpsDisrupted] = useState(false);
   const [noEnemyInLos, setNoEnemyInLos] = useState(false);
+  const [enemies, setEnemies] = useState<Point[]>([]);
+  const [placingEnemy, setPlacingEnemy] = useState(false);
   const [rangeDataUrl, setRangeDataUrl] = useState<string | null>(null);
   const clickHandlerRef = useRef<(e: MouseEvent) => void>(() => {});
   const { vb, isDragging, handleMouseDown, resetPan } = useMapPan(svgRef, clickHandlerRef, INITIAL_VB);
   const rangeDistRef = useRef<Float32Array | null>(null);
+
+  const enemyBaseGrid = useMemo(() => applyEnemies(getGrid(feType), enemies), [feType, enemies]);
+  const enemyColGrid = useMemo(() => {
+    const col = getColumnGrid(feType);
+    return col ? applyEnemies(col, enemies) : null;
+  }, [feType, enemies]);
 
   // Pre-warm all terrain grids after first paint so the first click is instant.
   useEffect(() => {
@@ -136,27 +165,30 @@ export function MovementMap() {
   useEffect(() => {
     if (startPt && !endPt) {
       const maxMove = MOVEMENT_RANGE_M[feType] * movementMultiplier;
-      const dist = mergedReachable(startPt, feType, maxMove, noEnemyInLos);
+      const dist = mergedReachable(startPt, enemyBaseGrid, noEnemyInLos ? enemyColGrid : null, maxMove, noEnemyInLos);
       rangeDistRef.current = dist;
-      setRangeDataUrl(buildRangeDataUrl(dist, getGrid(feType), maxMove));
+      setRangeDataUrl(buildRangeDataUrl(dist, enemyBaseGrid, maxMove));
     } else {
       rangeDistRef.current = null;
       setRangeDataUrl(null);
     }
-  }, [startPt, endPt, feType, movementMultiplier, noEnemyInLos]);
+  }, [startPt, endPt, feType, movementMultiplier, noEnemyInLos, enemyBaseGrid, enemyColGrid]);
 
   // Keep click logic up-to-date without stale closures in window handler.
   useEffect(() => {
     clickHandlerRef.current = (e: MouseEvent) => {
       if (!svgRef.current) return;
       const pt = screenToSvg({ x: e.clientX, y: e.clientY }, svgRef.current);
+      if (placingEnemy) {
+        setEnemies(prev => [...prev, pt]);
+        return;
+      }
       if (!startPt || endPt) {
         setStartPt(pt);
         setEndPt(null);
         setResult(null);
       } else {
-        const grid = getGrid(feType);
-        const { rows, cols, viewBox } = grid;
+        const { rows, cols, viewBox } = enemyBaseGrid;
         const row = Math.max(0, Math.min(rows - 1, Math.floor((pt.y - viewBox.y) / viewBox.height * rows)));
         const col = Math.max(0, Math.min(cols - 1, Math.floor((pt.x - viewBox.x) / viewBox.width * cols)));
         const maxMove = MOVEMENT_RANGE_M[feType] * movementMultiplier;
@@ -167,12 +199,11 @@ export function MovementMap() {
           return;
         }
         setEndPt(pt);
-        const colGrid = noEnemyInLos ? getColumnGrid(feType) : null;
-        const path = (colGrid && findPath(startPt, pt, colGrid)) ?? findPath(startPt, pt, getGrid(feType));
+        const path = (noEnemyInLos && enemyColGrid ? findPath(startPt, pt, enemyColGrid) : null) ?? findPath(startPt, pt, enemyBaseGrid);
         setResult(path);
       }
     };
-  }, [startPt, endPt, feType, movementMultiplier, noEnemyInLos]);
+  }, [startPt, endPt, feType, movementMultiplier, noEnemyInLos, placingEnemy, enemyBaseGrid, enemyColGrid]);
 
   const reset = () => {
     setStartPt(null);
@@ -180,6 +211,8 @@ export function MovementMap() {
     setResult(null);
     resetPan();
   };
+
+  const clearEnemies = () => setEnemies([]);
 
   const pathPoints = result?.points.map(p => `${p.x},${p.y}`).join(' ');
 
@@ -209,8 +242,15 @@ export function MovementMap() {
 
   return (
     <div>
-      <div style={{ display: 'flex', gap: 8, alignItems: 'center', padding: '4px 0 6px' }}>
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center', padding: '4px 0 6px', flexWrap: 'wrapre' }}>
         <button onClick={reset} disabled={!startPt}>Reset</button>
+        <button
+          onClick={() => setPlacingEnemy(v => !v)}
+          style={{ fontWeight: placingEnemy ? 'bold' : 'normal', outline: placingEnemy ? '2px solid darkred' : 'none' }}
+        >
+          Enemy
+        </button>
+        <button onClick={clearEnemies} disabled={enemies.length === 0}>Clear enemies</button>
         <label style={{ display: 'flex', gap: 4, alignItems: 'center', fontSize: '0.9em', cursor: 'pointer' }}>
           <input type="checkbox" checked={showGrid} onChange={e => setShowGrid((e.target as HTMLInputElement).checked)} />
           Debug
@@ -243,7 +283,7 @@ export function MovementMap() {
         <svg
           ref={svgRef}
           viewBox={`${vb.x} ${vb.y} ${vb.w} ${vb.h}`}
-          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', cursor: isDragging ? 'grabbing' : 'crosshair' }}
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', cursor: isDragging ? 'grabbing' : placingEnemy ? 'cell' : 'crosshair' }}
           onMouseDown={handleMouseDown}
         >
           {/* Map background */}
@@ -306,6 +346,11 @@ export function MovementMap() {
             </g>
           )}
 
+          {/* Enemy markers */}
+          {enemies.map((e, i) => (
+            <EnemyMarker key={i} pt={e} metersPerUnit={enemyBaseGrid.metersPerUnit} />
+          ))}
+
           {/* Start marker */}
           {startPt && <Marker pt={startPt} color="#1565c0" label="S" />}
 
@@ -314,6 +359,18 @@ export function MovementMap() {
         </svg>
       </div>
     </div>
+  );
+}
+
+function EnemyMarker({ pt, metersPerUnit }: { pt: Point; metersPerUnit: number }) {
+  const half = (ENEMY_SIZE_M / metersPerUnit) / 2;
+  return (
+    <g>
+      <rect x={pt.x - half} y={pt.y - half} width={half * 2} height={half * 2}
+        fill="rgba(160,0,0,0.75)" stroke="darkred" strokeWidth={4} />
+      <line x1={pt.x - half} y1={pt.y - half} x2={pt.x + half} y2={pt.y + half} stroke="darkred" strokeWidth={4} />
+      <line x1={pt.x + half} y1={pt.y - half} x2={pt.x - half} y2={pt.y + half} stroke="darkred" strokeWidth={4} />
+    </g>
   );
 }
 
