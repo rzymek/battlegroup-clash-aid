@@ -1,13 +1,16 @@
 import type { Point } from './types.ts';
 
 /**
- * Parse an SVG path `d` attribute and return an approximated polygon as an array of points.
- * Handles M, m, C, c, S, s, Z, z commands. Bezier curves are linearized at `stepsPerSegment`.
+ * Parse an SVG path `d` attribute and return an approximated polyline/polygon.
+ * Handles M, m, C, c, S, s, Z, z, L, l, H, h, V, v commands.
+ * Bezier curves are linearized at `stepsPerSegment`.
+ * `isClosed` is true when the path contains a Z/z command.
  */
-export function flattenSvgPath(d: string, stepsPerSegment = 12): Point[] {
+export function flattenSvgPath(d: string, stepsPerSegment = 12): { points: Point[]; isClosed: boolean } {
   const points: Point[] = [];
   let x = 0, y = 0;
   let lastCpX = 0, lastCpY = 0;
+  let isClosed = false;
 
   for (const { cmd, args } of tokenize(d)) {
     switch (cmd) {
@@ -129,11 +132,12 @@ export function flattenSvgPath(d: string, stepsPerSegment = 12): Point[] {
       }
       case 'z':
       case 'Z':
+        isClosed = true;
         break;
     }
   }
 
-  return points;
+  return { points, isClosed };
 }
 
 function appendCubic(

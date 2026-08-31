@@ -72,6 +72,7 @@ function parseTerrainLayers(
 
     const groupTranslate = parseTranslate(group.getAttribute('transform'));
     const polygons: Point[][] = [];
+    const polylines: Point[][] = [];
 
     for (const path of group.querySelectorAll('path')) {
       const d = path.getAttribute('d');
@@ -79,11 +80,14 @@ function parseTerrainLayers(
       const pathTranslate = parseTranslate(path.getAttribute('transform'));
       const tx = groupTranslate.tx + pathTranslate.tx;
       const ty = groupTranslate.ty + pathTranslate.ty;
-      const pts = flattenSvgPath(d).map(p => ({ x: p.x + tx, y: p.y + ty }));
-      if (pts.length >= 3) polygons.push(pts);
+      const { points, isClosed } = flattenSvgPath(d);
+      const pts = points.map(p => ({ x: p.x + tx, y: p.y + ty }));
+      if (pts.length < 2) continue;
+      if (isClosed && pts.length >= 3) polygons.push(pts);
+      else polylines.push(pts);
     }
 
-    if (polygons.length > 0) layers.push({ label, cost, polygons });
+    if (polygons.length > 0 || polylines.length > 0) layers.push({ label, cost, polygons, polylines });
   }
 
   return { layers, viewBox, metersPerUnit };
@@ -146,11 +150,22 @@ function applyLayer(
         }
       }
     }
-    // DDA edge traversal: guarantees every cell a polygon edge touches is marked,
-    // catching thin diagonal segments that axis-aligned scanlines miss.
+    // DDA edge traversal: catches thin diagonal segments that scanlines miss.
     for (let i = 0; i < polygon.length; i++) {
       ddaEdge(
         polygon[i], polygon[(i + 1) % polygon.length],
+        viewBox, cellW, cellH, rows, cols,
+        costs, layer.cost, merge, terrainIndex, layerIndex,
+      );
+    }
+  }
+
+  // Open paths (no SVG Z): mark only the cells each segment passes through.
+  // Scanline fill is skipped to avoid the false area enclosed by the implied closing segment.
+  for (const polyline of layer.polylines) {
+    for (let i = 0; i + 1 < polyline.length; i++) {
+      ddaEdge(
+        polyline[i], polyline[i + 1],
         viewBox, cellW, cellH, rows, cols,
         costs, layer.cost, merge, terrainIndex, layerIndex,
       );

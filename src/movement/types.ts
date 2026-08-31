@@ -13,8 +13,10 @@ export interface ViewBox {
 export interface TerrainLayer {
   label: string;
   cost: number;
-  /** Polygon approximations of paths in this layer, in SVG viewBox coordinate space. */
+  /** Closed paths (SVG Z present): rasterised with scanline fill + DDA edges. */
   polygons: Point[][];
+  /** Open paths (no SVG Z): rasterised with DDA edges only — avoids false fills from the implied closing segment. */
+  polylines: Point[][];
 }
 
 /** Pre-built raster grid of movement costs. Build once, reuse for many `findPath` calls. */
