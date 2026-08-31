@@ -92,10 +92,12 @@ function getColumnGrid(feType: FeType): TerrainGrid | null {
   return gridCache.get(key)!;
 }
 
-function mergedReachable(start: Point, feType: FeType, maxCost: number): Float32Array {
+function mergedReachable(start: Point, feType: FeType, maxCost: number, noEnemyInLos: boolean): Float32Array {
   const normal = findReachableCells(start, getGrid(feType), maxCost);
+  if (!noEnemyInLos) return normal;
   const colGrid = getColumnGrid(feType);
   if (!colGrid) return normal;
+  // Column movement (all-on-major-road) is a separate mode: show its reach on top of normal range.
   const col = findReachableCells(start, colGrid, maxCost);
   for (let i = 0; i < normal.length; i++) {
     if (col[i] < normal[i]) normal[i] = col[i];
@@ -114,6 +116,7 @@ export function MovementMap() {
   const [showGrid, setShowGrid] = useState(false);
   const [suppressed, setSuppressed] = useState(false);
   const [gpsDisrupted, setGpsDisrupted] = useState(false);
+  const [noEnemyInLos, setNoEnemyInLos] = useState(false);
   const [rangeDataUrl, setRangeDataUrl] = useState<string | null>(null);
   const clickHandlerRef = useRef<(e: MouseEvent) => void>(() => {});
   const { vb, isDragging, handleMouseDown, resetPan } = useMapPan(svgRef, clickHandlerRef, INITIAL_VB);
@@ -133,14 +136,14 @@ export function MovementMap() {
   useEffect(() => {
     if (startPt && !endPt) {
       const maxMove = MOVEMENT_RANGE_M[feType] * movementMultiplier;
-      const dist = mergedReachable(startPt, feType, maxMove);
+      const dist = mergedReachable(startPt, feType, maxMove, noEnemyInLos);
       rangeDistRef.current = dist;
       setRangeDataUrl(buildRangeDataUrl(dist, getGrid(feType), maxMove));
     } else {
       rangeDistRef.current = null;
       setRangeDataUrl(null);
     }
-  }, [startPt, endPt, feType, movementMultiplier]);
+  }, [startPt, endPt, feType, movementMultiplier, noEnemyInLos]);
 
   // Keep click logic up-to-date without stale closures in window handler.
   useEffect(() => {
@@ -164,11 +167,12 @@ export function MovementMap() {
           return;
         }
         setEndPt(pt);
-        const path = findPath(startPt, pt, grid) ?? findPath(startPt, pt, getColumnGrid(feType) ?? grid);
+        const colGrid = noEnemyInLos ? getColumnGrid(feType) : null;
+        const path = (colGrid && findPath(startPt, pt, colGrid)) ?? findPath(startPt, pt, getGrid(feType));
         setResult(path);
       }
     };
-  }, [startPt, endPt, feType, movementMultiplier]);
+  }, [startPt, endPt, feType, movementMultiplier, noEnemyInLos]);
 
   const reset = () => {
     setStartPt(null);
@@ -179,13 +183,37 @@ export function MovementMap() {
 
   const pathPoints = result?.points.map(p => `${p.x},${p.y}`).join(' ');
 
+  const pathLabelProps = (() => {
+    if (!result || result.points.length < 2) return null;
+    const pts = result.points;
+    let totalLen = 0;
+    const segs: number[] = [0];
+    for (let i = 1; i < pts.length; i++) {
+      const dx = pts[i].x - pts[i - 1].x;
+      const dy = pts[i].y - pts[i - 1].y;
+      totalLen += Math.sqrt(dx * dx + dy * dy);
+      segs.push(totalLen);
+    }
+    const half = totalLen / 2;
+    let idx = segs.findIndex(s => s >= half);
+    if (idx < 1) idx = 1;
+    const t = (half - segs[idx - 1]) / (segs[idx] - segs[idx - 1]);
+    const x = pts[idx - 1].x + t * (pts[idx].x - pts[idx - 1].x);
+    const y = pts[idx - 1].y + t * (pts[idx].y - pts[idx - 1].y);
+    const meters = totalLen * getGrid(feType).metersPerUnit;
+    const label = meters >= 1000
+      ? `${(meters / 1000).toFixed(1)} km`
+      : `${Math.round(meters)} m`;
+    return { x, y, label };
+  })();
+
   return (
     <div>
       <div style={{ display: 'flex', gap: 8, alignItems: 'center', padding: '4px 0 6px' }}>
         <button onClick={reset} disabled={!startPt}>Reset</button>
         <label style={{ display: 'flex', gap: 4, alignItems: 'center', fontSize: '0.9em', cursor: 'pointer' }}>
           <input type="checkbox" checked={showGrid} onChange={e => setShowGrid((e.target as HTMLInputElement).checked)} />
-          Show grid
+          Debug
         </label>
         <label style={{ display: 'flex', gap: 4, alignItems: 'center', fontSize: '0.9em', cursor: 'pointer' }}>
           <input type="checkbox" checked={suppressed} onChange={e => { setSuppressed((e.target as HTMLInputElement).checked); setEndPt(null); setResult(null); }} />
@@ -194,6 +222,10 @@ export function MovementMap() {
         <label style={{ display: 'flex', gap: 4, alignItems: 'center', fontSize: '0.9em', cursor: 'pointer' }}>
           <input type="checkbox" checked={gpsDisrupted} onChange={e => { setGpsDisrupted((e.target as HTMLInputElement).checked); setEndPt(null); setResult(null); }} />
           GPS disrupted
+        </label>
+        <label style={{ display: 'flex', gap: 4, alignItems: 'center', fontSize: '0.9em', cursor: feType === 'foot' ? 'not-allowed' : 'pointer', opacity: feType === 'foot' ? 0.4 : 1 }}>
+          <input type="checkbox" checked={noEnemyInLos} disabled={feType === 'foot'} onChange={e => { setNoEnemyInLos((e.target as HTMLInputElement).checked); setEndPt(null); setResult(null); }} />
+          No enemy in LoS
         </label>
         <span style={{ fontSize: '0.9em', color: '#666' }}>FE type:</span>
         {(['foot', 'wheeled', 'tracked'] as FeType[]).map(t => (
@@ -249,6 +281,29 @@ export function MovementMap() {
               strokeLinecap="round"
               strokeLinejoin="round"
             />
+          )}
+
+          {/* Path length label */}
+          {pathLabelProps && (
+            <g>
+              <rect
+                x={pathLabelProps.x - 90} y={pathLabelProps.y - 19}
+                width={180} height={38}
+                rx={6}
+                fill="rgba(0,0,0,0.65)"
+              />
+              <text
+                x={pathLabelProps.x} y={pathLabelProps.y}
+                dominantBaseline="central"
+                textAnchor="middle"
+                fill="white"
+                fontSize={26}
+                fontWeight="bold"
+                style={{ pointerEvents: 'none', userSelect: 'none' }}
+              >
+                {pathLabelProps.label}
+              </text>
+            </g>
           )}
 
           {/* Start marker */}

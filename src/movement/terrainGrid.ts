@@ -27,7 +27,10 @@ export function buildTerrainGrid(
   const cellH = viewBox.height / gridRows;
 
   // Process layers in SVG document order: last layer always wins, matching SVG rendering.
+  // When defaultCost is Infinity (e.g. column grids), skip layers whose cost is also Infinity:
+  // they carry no new information but would overwrite finite-cost road cells back to Infinity.
   for (let li = 0; li < layers.length; li++) {
+    if (!isFinite(defaultCost) && !isFinite(layers[li].cost)) continue;
     applyLayer(layers[li], li + 1, costs, terrainIndex, gridRows, gridCols, viewBox, cellW, cellH,
       (_, cost) => cost);
   }
