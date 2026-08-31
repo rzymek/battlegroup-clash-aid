@@ -112,6 +112,8 @@ export function MovementMap() {
   const [endPt, setEndPt] = useState<Point | null>(null);
   const [result, setResult] = useState<PathResult | null>(null);
   const [showGrid, setShowGrid] = useState(false);
+  const [suppressed, setSuppressed] = useState(false);
+  const [gpsDisrupted, setGpsDisrupted] = useState(false);
   const [rangeDataUrl, setRangeDataUrl] = useState<string | null>(null);
   const clickHandlerRef = useRef<(e: MouseEvent) => void>(() => {});
   const { vb, isDragging, handleMouseDown, resetPan } = useMapPan(svgRef, clickHandlerRef, INITIAL_VB);
@@ -126,16 +128,19 @@ export function MovementMap() {
     return () => clearTimeout(id);
   }, []);
 
+  const movementMultiplier = (suppressed ? 0.5 : 1) * (gpsDisrupted ? 0.75 : 1);
+
   useEffect(() => {
     if (startPt && !endPt) {
-      const dist = mergedReachable(startPt, feType, MOVEMENT_RANGE_M[feType]);
+      const maxMove = MOVEMENT_RANGE_M[feType] * movementMultiplier;
+      const dist = mergedReachable(startPt, feType, maxMove);
       rangeDistRef.current = dist;
-      setRangeDataUrl(buildRangeDataUrl(dist, getGrid(feType), MOVEMENT_RANGE_M[feType]));
+      setRangeDataUrl(buildRangeDataUrl(dist, getGrid(feType), maxMove));
     } else {
       rangeDistRef.current = null;
       setRangeDataUrl(null);
     }
-  }, [startPt, endPt, feType]);
+  }, [startPt, endPt, feType, movementMultiplier]);
 
   // Keep click logic up-to-date without stale closures in window handler.
   useEffect(() => {
@@ -151,7 +156,8 @@ export function MovementMap() {
         const { rows, cols, viewBox } = grid;
         const row = Math.max(0, Math.min(rows - 1, Math.floor((pt.y - viewBox.y) / viewBox.height * rows)));
         const col = Math.max(0, Math.min(cols - 1, Math.floor((pt.x - viewBox.x) / viewBox.width * cols)));
-        if (rangeDistRef.current && rangeDistRef.current[row * cols + col] > MOVEMENT_RANGE_M[feType]) {
+        const maxMove = MOVEMENT_RANGE_M[feType] * movementMultiplier;
+        if (rangeDistRef.current && rangeDistRef.current[row * cols + col] > maxMove) {
           setStartPt(pt);
           setEndPt(null);
           setResult(null);
@@ -162,7 +168,7 @@ export function MovementMap() {
         setResult(path);
       }
     };
-  }, [startPt, endPt, feType]);
+  }, [startPt, endPt, feType, movementMultiplier]);
 
   const reset = () => {
     setStartPt(null);
@@ -180,6 +186,14 @@ export function MovementMap() {
         <label style={{ display: 'flex', gap: 4, alignItems: 'center', fontSize: '0.9em', cursor: 'pointer' }}>
           <input type="checkbox" checked={showGrid} onChange={e => setShowGrid((e.target as HTMLInputElement).checked)} />
           Show grid
+        </label>
+        <label style={{ display: 'flex', gap: 4, alignItems: 'center', fontSize: '0.9em', cursor: 'pointer' }}>
+          <input type="checkbox" checked={suppressed} onChange={e => { setSuppressed((e.target as HTMLInputElement).checked); setEndPt(null); setResult(null); }} />
+          Suppressed
+        </label>
+        <label style={{ display: 'flex', gap: 4, alignItems: 'center', fontSize: '0.9em', cursor: 'pointer' }}>
+          <input type="checkbox" checked={gpsDisrupted} onChange={e => { setGpsDisrupted((e.target as HTMLInputElement).checked); setEndPt(null); setResult(null); }} />
+          GPS disrupted
         </label>
         <span style={{ fontSize: '0.9em', color: '#666' }}>FE type:</span>
         {(['foot', 'wheeled', 'tracked'] as FeType[]).map(t => (
