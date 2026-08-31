@@ -158,6 +158,7 @@ export function findReachableCells(
   const sc = Math.max(0, Math.min(cols - 1, Math.floor((start.x - viewBox.x) / viewBox.width * cols)));
 
   const dist = new Float32Array(rows * cols).fill(Infinity);
+  const closed = new Uint8Array(rows * cols);
   const startIdx = sr * cols + sc;
   dist[startIdx] = 0;
 
@@ -166,9 +167,12 @@ export function findReachableCells(
 
   while (pq.size > 0) {
     const curIdx = pq.pop();
+    if (closed[curIdx]) continue;
+    closed[curIdx] = 1;
+
+    const curDist = dist[curIdx];
     const cr = Math.floor(curIdx / cols);
     const cc = curIdx % cols;
-    const curDist = dist[curIdx];
 
     for (let d = 0; d < DIRS.length; d++) {
       const nr = cr + DIRS[d][0];
@@ -176,6 +180,7 @@ export function findReachableCells(
       if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) continue;
 
       const ni = nr * cols + nc;
+      if (closed[ni]) continue;
       const terrainCost = costs[ni];
       if (!isFinite(terrainCost)) continue;
 

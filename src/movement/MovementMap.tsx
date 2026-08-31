@@ -70,12 +70,15 @@ const vbMatch = mapBSvgRaw.match(/viewBox="([^"]+)"/);
 const [vbX, vbY, vbW, vbH] = (vbMatch?.[1] ?? '0 0 1000 1000').split(/[\s,]+/).map(Number);
 const INITIAL_VB = { x: vbX, y: vbY, w: vbW, h: vbH };
 
+/** Grid columns — rows are derived from the map aspect ratio so cells are square. */
+const GRID_RESOLUTION = 400;
+
 // ── Lazy terrain grid + grid image (built once on first use) ─────────────────
 
 const gridCache = new Map<GridKey, TerrainGrid>();
 function getGrid(feType: FeType): TerrainGrid {
   if (!gridCache.has(feType)) {
-    gridCache.set(feType, buildTerrainGrid(mapBSvgRaw, LAYER_COSTS[feType]));
+    gridCache.set(feType, buildTerrainGrid(mapBSvgRaw, LAYER_COSTS[feType], 1, GRID_RESOLUTION));
   }
   return gridCache.get(feType)!;
 }
@@ -84,7 +87,7 @@ function getColumnGrid(feType: FeType): TerrainGrid | null {
   if (feType === 'foot') return null;
   const key: GridKey = `${feType}-column`;
   if (!gridCache.has(key)) {
-    gridCache.set(key, buildTerrainGrid(mapBSvgRaw, LAYER_COSTS[key], Infinity));
+    gridCache.set(key, buildTerrainGrid(mapBSvgRaw, LAYER_COSTS[key], Infinity, GRID_RESOLUTION));
   }
   return gridCache.get(key)!;
 }
@@ -113,6 +116,15 @@ export function MovementMap() {
   const clickHandlerRef = useRef<(e: MouseEvent) => void>(() => {});
   const { vb, isDragging, handleMouseDown, resetPan } = useMapPan(svgRef, clickHandlerRef, INITIAL_VB);
   const rangeDistRef = useRef<Float32Array | null>(null);
+
+  // Pre-warm all terrain grids after first paint so the first click is instant.
+  useEffect(() => {
+    const id = setTimeout(() => {
+      getGrid('foot'); getGrid('wheeled'); getGrid('tracked');
+      getColumnGrid('wheeled'); getColumnGrid('tracked');
+    }, 0);
+    return () => clearTimeout(id);
+  }, []);
 
   useEffect(() => {
     if (startPt && !endPt) {

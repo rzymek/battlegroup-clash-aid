@@ -6,21 +6,20 @@ const INKSCAPE_NS = 'http://www.inkscape.org/namespaces/inkscape';
 /**
  * Parse an SVG file and rasterize its terrain layers into a cost grid.
  *
- * @param svgContent  Raw SVG file content as a string.
- * @param layerCosts  Map from inkscape layer label → movement cost. Use Infinity for impassable.
- * @param defaultCost Cost for cells not covered by any polygon (open ground). Default: 1.
- * @param gridCols    Grid columns. Higher = more precision, slower build. Default: 200.
- * @param gridRows    Grid rows. Default: 150.
+ * @param svgContent     Raw SVG file content as a string.
+ * @param layerCosts     Map from inkscape layer label → movement cost. Use Infinity for impassable.
+ * @param defaultCost    Cost for cells not covered by any polygon (open ground). Default: 1.
+ * @param gridCols       Grid columns. Rows are derived from the SVG aspect ratio so cells are square.
  */
 export function buildTerrainGrid(
   svgContent: string,
   layerCosts: Record<string, number>,
   defaultCost = 1,
   gridCols = 200,
-  gridRows = 150,
 ): TerrainGrid {
   const { layers, viewBox, metersPerUnit } = parseTerrainLayers(svgContent, layerCosts, defaultCost);
 
+  const gridRows = Math.round(gridCols * viewBox.height / viewBox.width);
   const costs = new Float32Array(gridRows * gridCols).fill(defaultCost);
   const terrainIndex = new Uint8Array(gridRows * gridCols); // 0 = open
   const terrainNames = ['open', ...layers.map(l => l.label)];
@@ -92,6 +91,17 @@ function parseTerrainLayers(
 
 type Merge = (existing: number, cost: number) => number;
 
+function polyBbox(polygon: Point[]) {
+  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+  for (const p of polygon) {
+    if (p.x < minX) minX = p.x;
+    if (p.x > maxX) maxX = p.x;
+    if (p.y < minY) minY = p.y;
+    if (p.y > maxY) maxY = p.y;
+  }
+  return { minX, maxX, minY, maxY };
+}
+
 function applyLayer(
   layer: TerrainLayer,
   layerIndex: number,
@@ -102,13 +112,19 @@ function applyLayer(
   merge: Merge,
 ) {
   for (const polygon of layer.polygons) {
+    const bb = polyBbox(polygon);
+    const rMin = Math.max(0, Math.floor((bb.minY - viewBox.y) / cellH));
+    const rMax = Math.min(rows - 1, Math.floor((bb.maxY - viewBox.y) / cellH));
+    const cMin = Math.max(0, Math.floor((bb.minX - viewBox.x) / cellW));
+    const cMax = Math.min(cols - 1, Math.floor((bb.maxX - viewBox.x) / cellW));
+
     // Horizontal scanlines: fills wide polygons and thin vertical/diagonal features.
-    for (let r = 0; r < rows; r++) {
+    for (let r = rMin; r <= rMax; r++) {
       const y = viewBox.y + (r + 0.5) * cellH;
       const xs = xIntersections(polygon, y);
       for (let i = 0; i + 1 < xs.length; i += 2) {
-        const c0 = Math.max(0, Math.floor((xs[i] - viewBox.x) / cellW));
-        const c1 = Math.min(cols - 1, Math.floor((xs[i + 1] - viewBox.x) / cellW));
+        const c0 = Math.max(cMin, Math.floor((xs[i] - viewBox.x) / cellW));
+        const c1 = Math.min(cMax, Math.floor((xs[i + 1] - viewBox.x) / cellW));
         for (let c = c0; c <= c1; c++) {
           const idx = r * cols + c;
           costs[idx] = merge(costs[idx], layer.cost);
@@ -117,12 +133,12 @@ function applyLayer(
       }
     }
     // Vertical scanlines: catches thin nearly-horizontal features.
-    for (let c = 0; c < cols; c++) {
+    for (let c = cMin; c <= cMax; c++) {
       const x = viewBox.x + (c + 0.5) * cellW;
       const ys = yIntersections(polygon, x);
       for (let i = 0; i + 1 < ys.length; i += 2) {
-        const r0 = Math.max(0, Math.floor((ys[i] - viewBox.y) / cellH));
-        const r1 = Math.min(rows - 1, Math.floor((ys[i + 1] - viewBox.y) / cellH));
+        const r0 = Math.max(rMin, Math.floor((ys[i] - viewBox.y) / cellH));
+        const r1 = Math.min(rMax, Math.floor((ys[i + 1] - viewBox.y) / cellH));
         for (let r = r0; r <= r1; r++) {
           const idx = r * cols + c;
           costs[idx] = merge(costs[idx], layer.cost);
