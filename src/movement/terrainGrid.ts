@@ -19,7 +19,7 @@ export function buildTerrainGrid(
   gridCols = 200,
   gridRows = 150,
 ): TerrainGrid {
-  const { layers, viewBox } = parseTerrainLayers(svgContent, layerCosts, defaultCost);
+  const { layers, viewBox, metersPerUnit } = parseTerrainLayers(svgContent, layerCosts, defaultCost);
 
   const costs = new Float32Array(gridRows * gridCols).fill(defaultCost);
   const terrainIndex = new Uint8Array(gridRows * gridCols); // 0 = open
@@ -33,7 +33,7 @@ export function buildTerrainGrid(
       (_, cost) => cost);
   }
 
-  return { costs, terrainIndex, terrainNames, rows: gridRows, cols: gridCols, viewBox };
+  return { costs, terrainIndex, terrainNames, rows: gridRows, cols: gridCols, viewBox, metersPerUnit };
 }
 
 export function cellCenter(
@@ -51,13 +51,17 @@ function parseTerrainLayers(
   svgContent: string,
   layerCosts: Record<string, number>,
   defaultCost: number,
-): { layers: TerrainLayer[]; viewBox: ViewBox } {
+): { layers: TerrainLayer[]; viewBox: ViewBox; metersPerUnit: number } {
   const doc = new DOMParser().parseFromString(svgContent, 'image/svg+xml');
 
   const svgEl = doc.querySelector('svg');
   const vbNums = (svgEl?.getAttribute('viewBox') ?? '0 0 1000 1000')
     .trim().split(/[\s,]+/).map(Number);
   const viewBox: ViewBox = { x: vbNums[0], y: vbNums[1], width: vbNums[2], height: vbNums[3] };
+
+  // SVG width in user-units (px) where 1 px = 1 m, viewBox uses a different scale.
+  const svgPxWidth = parseFloat(svgEl?.getAttribute('width') ?? '0');
+  const metersPerUnit = svgPxWidth > 0 ? svgPxWidth / viewBox.width : 1;
 
   const layers: TerrainLayer[] = [];
 
@@ -83,7 +87,7 @@ function parseTerrainLayers(
     if (polygons.length > 0) layers.push({ label, cost, polygons });
   }
 
-  return { layers, viewBox };
+  return { layers, viewBox, metersPerUnit };
 }
 
 type Merge = (existing: number, cost: number) => number;

@@ -7,10 +7,15 @@ import type { Point, PathResult, TerrainGrid } from './types.ts';
 import { getGridDataUrl, buildRangeDataUrl } from './gridRendering.ts';
 import { useMapPan } from './useMapPan.ts';
 
-const MOVEMENT_RANGE = 20;
-
 type FeType = 'foot' | 'wheeled' | 'tracked';
 type GridKey = FeType | 'wheeled-column' | 'tracked-column';
+
+// Movement allowance in metres (SVG units = metres) for open terrain.
+const MOVEMENT_RANGE_M: Record<FeType, number> = {
+  foot: 750,
+  wheeled: 1500,
+  tracked: 2000,
+};
 
 // Costs normalised so Open terrain = 1.0 for each type.
 // Formula: open_allowance / terrain_allowance (Player Aid 2 Movement Table).
@@ -111,9 +116,9 @@ export function MovementMap() {
 
   useEffect(() => {
     if (startPt && !endPt) {
-      const dist = mergedReachable(startPt, feType, MOVEMENT_RANGE);
+      const dist = mergedReachable(startPt, feType, MOVEMENT_RANGE_M[feType]);
       rangeDistRef.current = dist;
-      setRangeDataUrl(buildRangeDataUrl(dist, getGrid(feType), MOVEMENT_RANGE));
+      setRangeDataUrl(buildRangeDataUrl(dist, getGrid(feType), MOVEMENT_RANGE_M[feType]));
     } else {
       rangeDistRef.current = null;
       setRangeDataUrl(null);
@@ -134,7 +139,7 @@ export function MovementMap() {
         const { rows, cols, viewBox } = grid;
         const row = Math.max(0, Math.min(rows - 1, Math.floor((pt.y - viewBox.y) / viewBox.height * rows)));
         const col = Math.max(0, Math.min(cols - 1, Math.floor((pt.x - viewBox.x) / viewBox.width * cols)));
-        if (rangeDistRef.current && rangeDistRef.current[row * cols + col] > MOVEMENT_RANGE) {
+        if (rangeDistRef.current && rangeDistRef.current[row * cols + col] > MOVEMENT_RANGE_M[feType]) {
           setStartPt(pt);
           setEndPt(null);
           setResult(null);

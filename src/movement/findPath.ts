@@ -24,7 +24,9 @@ export function findPath(
   const { row: sr, col: sc } = svgToCell(start);
   const { row: er, col: ec } = svgToCell(end);
 
-  const cells = aStar(sr, sc, er, ec, costs, rows, cols);
+  const cellW = viewBox.width / cols * grid.metersPerUnit;
+  const cellH = viewBox.height / rows * grid.metersPerUnit;
+  const cells = aStar(sr, sc, er, ec, costs, rows, cols, cellW, cellH);
   if (!cells) return null;
 
   const points = cells.map(({ row, col }) => cellCenter(row, col, viewBox, rows, cols));
@@ -33,7 +35,7 @@ export function findPath(
   for (let i = 1; i < cells.length; i++) {
     const dr = cells[i].row - cells[i - 1].row;
     const dc = cells[i].col - cells[i - 1].col;
-    const dist = Math.sqrt(dr * dr + dc * dc);
+    const dist = Math.sqrt((dr * cellH) ** 2 + (dc * cellW) ** 2);
     totalCost += dist * costs[cells[i].row * cols + cells[i].col];
   }
 
@@ -59,16 +61,23 @@ const DIRS = [
   [0, -1],           [0, 1],
   [1, -1],  [1, 0],  [1, 1],
 ] as const;
-const DIR_DIST = [Math.SQRT2, 1, Math.SQRT2, 1, 1, Math.SQRT2, 1, Math.SQRT2];
+
+/** Direction distances in SVG units (= metres since 1 px = 1 m). */
+function computeDirDist(cellW: number, cellH: number): number[] {
+  const diag = Math.sqrt(cellW ** 2 + cellH ** 2);
+  return [diag, cellH, diag, cellW, cellW, diag, cellH, diag];
+}
 
 function aStar(
   sr: number, sc: number,
   er: number, ec: number,
   costs: Float32Array,
   rows: number, cols: number,
+  cellW: number, cellH: number,
 ): { row: number; col: number }[] | null {
   const n = rows * cols;
   const idx = (r: number, c: number) => r * cols + c;
+  const dirDist = computeDirDist(cellW, cellH);
 
   const gScore = new Float32Array(n).fill(Infinity);
   const cameFrom = new Int32Array(n).fill(-1);
@@ -79,7 +88,7 @@ function aStar(
 
   gScore[startIdx] = 0;
   const pq = new MinHeap();
-  pq.push(startIdx, heuristic(sr, sc, er, ec));
+  pq.push(startIdx, heuristic(sr, sc, er, ec, cellW, cellH));
 
   while (pq.size > 0) {
     const curIdx = pq.pop();
@@ -102,11 +111,11 @@ function aStar(
       const terrainCost = costs[ni];
       if (!isFinite(terrainCost)) continue;
 
-      const tentativeG = gScore[curIdx] + DIR_DIST[d] * terrainCost;
+      const tentativeG = gScore[curIdx] + dirDist[d] * terrainCost;
       if (tentativeG < gScore[ni]) {
         gScore[ni] = tentativeG;
         cameFrom[ni] = curIdx;
-        pq.push(ni, tentativeG + heuristic(nr, nc, er, ec));
+        pq.push(ni, tentativeG + heuristic(nr, nc, er, ec, cellW, cellH));
       }
     }
   }
@@ -114,8 +123,8 @@ function aStar(
   return null;
 }
 
-function heuristic(r1: number, c1: number, r2: number, c2: number): number {
-  return Math.sqrt((r2 - r1) ** 2 + (c2 - c1) ** 2);
+function heuristic(r1: number, c1: number, r2: number, c2: number, cellW: number, cellH: number): number {
+  return Math.sqrt(((r2 - r1) * cellH) ** 2 + ((c2 - c1) * cellW) ** 2);
 }
 
 function reconstruct(
@@ -141,6 +150,10 @@ export function findReachableCells(
   maxCost: number,
 ): Float32Array {
   const { costs, rows, cols, viewBox } = grid;
+  const cellW = viewBox.width / cols * grid.metersPerUnit;
+  const cellH = viewBox.height / rows * grid.metersPerUnit;
+  const dirDist = computeDirDist(cellW, cellH);
+
   const sr = Math.max(0, Math.min(rows - 1, Math.floor((start.y - viewBox.y) / viewBox.height * rows)));
   const sc = Math.max(0, Math.min(cols - 1, Math.floor((start.x - viewBox.x) / viewBox.width * cols)));
 
@@ -166,7 +179,7 @@ export function findReachableCells(
       const terrainCost = costs[ni];
       if (!isFinite(terrainCost)) continue;
 
-      const newDist = curDist + DIR_DIST[d] * terrainCost;
+      const newDist = curDist + dirDist[d] * terrainCost;
       if (newDist <= maxCost && newDist < dist[ni]) {
         dist[ni] = newDist;
         pq.push(ni, newDist);

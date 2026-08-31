@@ -25,6 +25,8 @@ export interface TerrainGrid {
   rows: number;
   cols: number;
   viewBox: ViewBox;
+  /** Metres per viewBox coordinate unit (svgWidthPx / viewBoxWidth). */
+  metersPerUnit: number;
 }
 
 export interface PathResult {
