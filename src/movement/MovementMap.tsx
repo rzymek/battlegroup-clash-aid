@@ -137,7 +137,7 @@ export function MovementMap() {
   const [showGrid, setShowGrid] = useState(false);
   const [suppressed, setSuppressed] = useState(false);
   const [gpsDisrupted, setGpsDisrupted] = useState(false);
-  const [noEnemyInLos, setNoEnemyInLos] = useState(false);
+  const [noEnemyInLos, setNoEnemyInLos] = useState(true);
   const [enemies, setEnemies] = useState<Point[]>([]);
   const [placingEnemy, setPlacingEnemy] = useState(false);
   const [rangeDataUrl, setRangeDataUrl] = useState<string | null>(null);
@@ -212,8 +212,6 @@ export function MovementMap() {
     resetPan();
   };
 
-  const clearEnemies = () => setEnemies([]);
-
   const pathPoints = result?.points.map(p => `${p.x},${p.y}`).join(' ');
 
   const pathLabelProps = (() => {
@@ -242,15 +240,14 @@ export function MovementMap() {
 
   return (
     <div>
-      <div style={{ display: 'flex', gap: 8, alignItems: 'center', padding: '4px 0 6px', flexWrap: 'wrapre' }}>
-        <button onClick={reset} disabled={!startPt}>Reset</button>
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center', padding: '4px 0 6px', flexWrap: 'wrap' }}>
+        <button onClick={reset}>Reset</button>
         <button
           onClick={() => setPlacingEnemy(v => !v)}
           style={{ fontWeight: placingEnemy ? 'bold' : 'normal', outline: placingEnemy ? '2px solid darkred' : 'none' }}
         >
           Enemy
         </button>
-        <button onClick={clearEnemies} disabled={enemies.length === 0}>Clear enemies</button>
         <label style={{ display: 'flex', gap: 4, alignItems: 'center', fontSize: '0.9em', cursor: 'pointer' }}>
           <input type="checkbox" checked={showGrid} onChange={e => setShowGrid((e.target as HTMLInputElement).checked)} />
           Debug
