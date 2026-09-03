@@ -28,13 +28,16 @@ export function SelectionBar<T extends Record<string | number, any>, R extends k
         return <Togglable key={type}
                           of={[...props.of, type]}
                           selectedStyle={{
-                            backgroundColor: 'lightblue'
+                            borderBottomStyle: 'solid',
+                            borderColor: 'blue',
+                            borderBottomWidth: 6,
                           }}
                           onClick={props.required ? update(() => props.of[0][props.of[1]] = type) : undefined}
                           style={{
                             flex: 1,
                             display: 'grid',
                             borderStyle: 'none',
+                            borderBottomWidth: 6,
                             minWidth: 0,
                             ...(props.styles?.[type] ?? {}),
                             ...corners
